@@ -2,133 +2,50 @@
 <html lang="ms">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HostelScan Pro - Stabil</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-300 font-sans min-h-screen p-4 lg:p-6">
-
-  <!-- CONTAINER UTAMA -->
-  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-    
-    <!-- PANEL KIRI -->
-    <div class="lg:col-span-5 bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
-      <div class="bg-[#1e40af] p-6 text-white text-center relative">
-        <h1 class="text-2xl font-black tracking-wider">HOSTELSCAN PRO v4.1</h1>
-        <p class="text-xs text-blue-200 mt-1 tracking-widest uppercase">Terminal Imbasan & Info Pelajar</p>
-        <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full text-xs">🔄</button>
-      </div>
-
-      <div class="p-4 bg-slate-50 border-b border-slate-200 flex gap-4">
-        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-3 rounded-xl font-black text-sm bg-[#064e3b] text-white tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-sm">📥 DAFTAR MASUK</button>
-        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-3 rounded-xl font-black text-sm bg-white text-slate-700 border border-slate-300 tracking-wider flex items-center justify-center gap-2 cursor-pointer">📤 BALIK / OUTING</button>
-      </div>
-
-      <div class="p-5 space-y-4">
-        <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[300px] border-4 border-[#064e3b] shadow-inner flex items-center justify-center">
-          <div id="reader" class="w-full h-full"></div>
-          <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
-            <button onclick="mulaKameraGitHub()" class="bg-[#064e3b] hover:bg-emerald-800 text-white font-black py-3 px-6 rounded-xl shadow-md text-sm tracking-wider uppercase cursor-pointer flex items-center gap-2">📷 AKTIFKAN KAMERA LIVE</button>
-          </div>
-        </div>
-
-        <div class="border-t border-slate-200 pt-4">
-          <p class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1">✏️ Taip ID Manual</p>
-          <div class="flex gap-2">
-            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="flex-1 px-4 py-2 border-2 border-slate-300 rounded-lg text-base font-mono font-bold uppercase bg-slate-50 text-slate-800 focus:border-blue-600 focus:outline-none">
-            <button onclick="hantarIDManual()" class="bg-[#1e293b] hover:bg-slate-800 text-white font-black px-6 py-2 rounded-lg text-sm tracking-wider uppercase cursor-pointer transition-colors shadow-sm">Semak</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="p-5 border-t border-slate-200 bg-slate-50 min-h-[80px]">
-        <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-lg font-black text-xs uppercase mb-2 tracking-wider"></div>
-        <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div class="grid grid-cols-3 text-sm"><span class="font-bold text-gray-400">Nama:</span><span class="col-span-2 font-black text-slate-800 uppercase" id="data-nama">-</span></div>
-          <div class="grid grid-cols-3 text-sm"><span class="font-bold text-gray-400">Dorm:</span><span class="col-span-2 font-black text-blue-700 uppercase" id="data-dorm">-</span></div>
-          <div class="grid grid-cols-3 text-sm"><span class="font-bold text-gray-400">Status:</span><span class="col-span-2"><span id="data-status" class="text-xs px-2 py-0.5 rounded font-black uppercase">-</span></span></div>
-        </div>
-      </div>
+<body class="bg-slate-100 p-4">
+  <div class="max-w-md mx-auto">
+    <h1 class="text-xl font-black text-center mb-4">HOSTELSCAN PRO</h1>
+    <div id="reader" class="w-full h-64 bg-black rounded-lg"></div>
+    <div class="flex gap-2 mt-4">
+      <button onclick="hantar('MASUK')" class="w-full bg-green-600 text-white p-3 rounded font-bold">MASUK</button>
+      <button onclick="hantar('KELUAR')" class="w-full bg-red-600 text-white p-3 rounded font-bold">KELUAR</button>
     </div>
-
-    <!-- PANEL KANAN -->
-    <div class="lg:col-span-7 space-y-6">
-      <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
-        <div class="flex items-center gap-2 mb-4">
-            <label class="text-xs font-bold text-slate-500 uppercase">Tarikh Semakan:</label>
-            <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="text-xs font-bold bg-slate-100 border border-slate-300 p-1.5 rounded-lg text-slate-700">
-        </div>
-        <div class="grid grid-cols-3 gap-4 text-center">
-          <div class="bg-slate-100 p-4 rounded-xl border border-slate-300"><p class="text-xs font-bold text-slate-500">JUMLAH</p><p id="stat-total" class="text-2xl font-black">0</p></div>
-          <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200"><p class="text-xs font-bold text-emerald-600">MASUK</p><p id="stat-masuk" class="text-2xl font-black">0</p></div>
-          <div class="bg-red-50 p-4 rounded-xl border border-red-200"><p class="text-xs font-bold text-red-600">KELUAR</p><p id="stat-keluar" class="text-2xl font-black">0</p></div>
-        </div>
-      </div>
-
-      <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
-        <h2 class="font-black text-red-700 mb-4 uppercase">🚨 Pelajar Tiada di Asrama</h2>
-        <div class="overflow-x-auto max-h-[350px]">
-          <table class="w-full text-left" id="jadual-export">
-            <tbody id="jadual-tidak-hadir"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <div id="status-log" class="mt-4 p-2 text-center font-bold text-sm"></div>
   </div>
 
-  <!-- PUSTAKA (DIMUATKAN DI BAWAH UNTUK KESTABILAN) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
   <script>
-    const urlAPI = "https://script.google.com/macros/s/AKfycby-h9jElAwi276F9X9XNvjy09SKdRa-4Z4dJixAvdzS5odyEGvxEPFCBT2oXNpxYJJBdw/exec";
-    let html5QrCode, sedangMemproses = false, statusSemasaArah = "MASUK", globalSenaraiXMasuk = [];
+    const urlAPI = "https://script.google.com/macros/s/AKfycbyrQcJoGPBKe3nqB-jZlzLM-Wgt_7FurRBnwrE61tQvgIeBelLE2d_nMOPC0qmNRRjrCw/exec";
+    let arah = "MASUK";
 
-    window.onload = () => {
-      document.getElementById("pilih-tarikh").value = new Date().toISOString().split('T')[0];
-      muatNaikStatistik();
-    };
+    const qr = new Html5Qrcode("reader");
+    qr.start({ facingMode: "environment" }, { fps: 10, qrbox: 200 }, (id) => hantar(arah, id));
 
-    function setModPergerakan(arah) {
-      statusSemasaArah = arah;
-      document.getElementById("bingkai-kamera").style.borderColor = (arah === "MASUK") ? "#064e3b" : "#b91c1c";
-    }
+    function hantar(a, id) {
+      if(!id) id = prompt("Masukkan ID Pelajar:");
+      if(!id) return;
 
-    function mulaKameraGitHub() {
-      document.getElementById('overlay-mula').style.display = 'none';
-      html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => prosesPenghantaranData(text.trim()));
-    }
-
-    function muatNaikStatistik() {
-      fetch(`${urlAPI}?tarikh=${document.getElementById("pilih-tarikh").value}`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("stat-total").innerText = data.keseluruhan.total;
-        document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk;
-        document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar;
-        globalSenaraiXMasuk = data.senaraiXMasuk;
-        let html = "";
-        globalSenaraiXMasuk.forEach(p => html += `<tr><td class="p-2">${p.nama}</td><td class="p-2 text-blue-700">${p.dorm}</td></tr>`);
-        document.getElementById("jadual-tidak-hadir").innerHTML = html;
+      const log = document.getElementById("status-log");
+      log.innerText = "Menghubungi Server...";
+      
+      fetch(urlAPI, { 
+        method: "POST", 
+        body: new URLSearchParams({idPelajar: id, arahPergerakan: a}) 
+      })
+      .then(r => r.json())
+      .then(d => {
+        log.innerText = d.status === "SUCCESS" ? "Berjaya: " + d.nama : "Ralat: ID Tidak Dijumpai";
+        log.className = d.status === "SUCCESS" ? "mt-4 p-2 text-center bg-green-200" : "mt-4 p-2 text-center bg-red-200";
+      })
+      .catch(() => {
+        log.innerText = "Ralat Hubungan! Sila Cuba Lagi.";
+        log.className = "mt-4 p-2 text-center bg-yellow-200";
       });
     }
-
-    function prosesPenghantaranData(id) {
-      if (sedangMemproses) return;
-      sedangMemproses = true;
-      fetch(urlAPI, { method: "POST", body: new URLSearchParams({idPelajar: id, arahPergerakan: statusSemasaArah}) })
-      .then(res => res.json())
-      .then(data => {
-        alert("Status: " + data.statusHadir);
-        sedangMemproses = false;
-        muatNaikStatistik();
-      });
-    }
-
-    function hantarIDManual() { prosesPenghantaranData(document.getElementById("id-manual").value); }
   </script>
 </body>
 </html>
