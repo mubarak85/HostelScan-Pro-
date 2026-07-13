@@ -3,101 +3,148 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro - Sistem Log Dua Hala</title>
+  <title>HostelScan Pro v3.0 - Dashboard Warden</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Pustaka Kamera QR -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 </head>
-<body class="bg-slate-100 font-sans min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-slate-100 font-sans min-h-screen p-4 lg:p-6">
 
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden my-auto">
-    <!-- Header -->
-    <div class="bg-blue-600 p-5 text-white text-center relative">
-      <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v2.0</h1>
-      <p class="text-xs text-blue-200 mt-1">Sistem Rekod Keluar & Masuk Asrama</p>
-      
-      <!-- BUTANG SUIS KAMERA DEPAN/BELAKANG -->
-      <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2.5 rounded-full transition-all cursor-pointer text-xs border border-white/30 font-semibold shadow-sm">
-        🔄
-      </button>
-    </div>
+  <!-- CONTAINER UTAMA DWI-PANEL -->
+  <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    
+    <!-- ================= PANEL KIRI: SCANNER SYSTEM (4 Lajur) ================= -->
+    <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full">
+      <!-- Header -->
+      <div class="bg-blue-600 p-5 text-white text-center relative">
+        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.0</h1>
+        <p class="text-xs text-blue-200 mt-1">Terminal Imbasan & Log Pergerakan</p>
+        <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
+      </div>
 
-    <!-- 🎛️ SUIS MOD PERGERAKAN (TAB MASUK / TAB KELUAR) -->
-    <div class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
-      <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-emerald-600 text-white shadow-md text-center">
-        📥 DAFTAR MASUK
-      </button>
-      <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-white text-slate-600 border border-slate-200 text-center">
-        📤 BALIK / OUTING
-      </button>
-    </div>
+      <!-- SUIS MOD PERGERAKAN -->
+      <div class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
+        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-emerald-600 text-white shadow-md text-center">
+          📥 DAFTAR MASUK
+        </button>
+        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-white text-slate-600 border border-slate-200 text-center">
+          📤 BALIK / OUTING
+        </button>
+      </div>
 
-    <div class="p-5 space-y-4">
-      <!-- PETAK VIEWPORT KAMERA SCANNER -->
-      <div class="text-center space-y-2">
-        <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[320px] border-2 border-emerald-500 shadow-md flex items-center justify-center transition-all duration-300">
-          
-          <div id="reader" class="w-full h-full"></div>
-          
-          <!-- OVERLAY AKTIFKAN KAMERA -->
-          <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
-            <p class="text-white text-sm font-semibold mb-4">Klik butang di bawah untuk mengaktifkan kamera peranti.</p>
-            <button onclick="mulaKameraGitHub()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transition-all cursor-pointer text-sm uppercase tracking-wider">
-              📷 Aktifkan Kamera Live
-            </button>
+      <div class="p-5 space-y-4">
+        <!-- PETAK KAMERA -->
+        <div class="text-center space-y-2">
+          <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 shadow-sm flex items-center justify-center">
+            <div id="reader" class="w-full h-full"></div>
+            <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
+              <button onclick="mulaKameraGitHub()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md text-sm uppercase">
+                📷 Aktifkan Kamera Live
+              </button>
+            </div>
           </div>
-          
         </div>
-        <p class="text-xs text-gray-500 font-medium">⚡ Halakan Kod QR pelajar terus ke dalam petak kamera</p>
+
+        <!-- CARIAN MANUAL -->
+        <details class="group border-t pt-2">
+          <summary class="list-none flex justify-between items-center font-semibold text-xs text-gray-400 cursor-pointer py-1">
+            <span>✏️ Taip ID Manual</span>
+            <span class="transition group-open:rotate-180 text-[10px]">▼</span>
+          </summary>
+          <div class="flex gap-2 mt-2">
+            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-1.5 border rounded-lg text-sm uppercase font-mono">
+            <button onclick="hantarIDManual()" class="bg-slate-700 text-white font-bold px-4 py-1.5 rounded-lg text-sm">Semak</button>
+          </div>
+        </details>
       </div>
 
-      <!-- CARIAN MANUAL KECEMASAN -->
-      <details class="group border-t pt-2">
-        <summary class="list-none flex justify-between items-center font-semibold text-xs text-gray-400 cursor-pointer py-1 select-none">
-          <span>✏️ Taip ID Manual (Jika Perlu)</span>
-          <span class="transition group-open:rotate-180 text-[10px]">▼</span>
-        </summary>
-        <div class="flex gap-2 mt-2">
-          <input type="text" id="id-manual" placeholder="Contoh: ID123" class="w-full px-3 py-1.5 border rounded-lg text-sm uppercase font-mono focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <button onclick="hantarIDManual()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-1.5 rounded-lg text-sm transition-all cursor-pointer">Semak</button>
+      <!-- KOTAK DATA IMBAZAN TERAKHIR -->
+      <div class="p-5 border-t border-slate-100 bg-slate-50/50 min-h-[100px]">
+        <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3"></div>
+        <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Nama</span><span class="col-span-2 font-bold text-slate-800" id="data-nama">-</span></div>
+          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Dorm</span><span class="col-span-2 font-bold text-blue-600" id="data-dorm">-</span></div>
+          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Status</span><span class="col-span-2"><span id="data-status" class="text-xs px-2 py-0.5 rounded font-black uppercase">-</span></span></div>
         </div>
-      </details>
+      </div>
     </div>
 
-    <!-- PENGESAHAN STATUS & DATA PELAJAR -->
-    <div class="p-5 border-t border-slate-100 bg-slate-50/50 min-h-[110px]">
-      <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3"></div>
-
-      <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <h3 class="text-center font-bold text-slate-500 uppercase tracking-wider text-[11px] border-b pb-1 mb-2">Data Pergerakan Pelajar</h3>
-        <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">No. ID</span><span class="col-span-2 font-mono font-bold text-slate-800" id="data-id">-</span></div>
-        <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Nama</span><span class="col-span-2 font-bold text-slate-800" id="data-nama">-</span></div>
-        <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Tingkatan</span><span class="col-span-2 font-bold text-slate-700" id="data-tingkatan">-</span></div>
-        <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Kelas</span><span class="col-span-2 font-bold text-slate-700" id="data-kelas">-</span></div>
-        <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Dorm</span><span class="col-span-2 font-bold text-blue-600" id="data-dorm">-</span></div>
-        <div class="grid grid-cols-3 text-sm pt-1 mt-1 border-t items-center"><span class="text-gray-400">Tindakan</span><span class="col-span-2"><span id="data-status" class="text-xs px-2.5 py-0.5 rounded font-black tracking-wider uppercase inline-block">-</span></span></div>
-        <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Masa Rekod</span><span class="col-span-2 font-mono text-xs font-bold text-slate-500" id="data-masa">-</span></div>
+    <!-- ================= PANEL KANAN: SIDEBAR REKOD & ANALISA (7 Lajur) ================= -->
+    <div class="lg:col-span-7 space-y-6 w-full">
+      
+      <!-- KAD 1: ANALISA KESELURUHAN -->
+      <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+          <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">📊 Analisa Keseluruhan Pelajar</h2>
+          <button onclick="muatNaikStatistik()" class="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-lg border border-blue-200 hover:bg-blue-100 font-semibold cursor-pointer">🔄 Segarkan Data</button>
+        </div>
+        
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <p class="text-xs font-medium text-slate-500 uppercase">Jumlah Besar</p>
+            <p id="stat-total" class="text-2xl font-black text-slate-800 mt-1">0</p>
+          </div>
+          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+            <p class="text-xs font-medium text-emerald-600 uppercase">Ada Di Asrama</p>
+            <p id="stat-masuk" class="text-2xl font-black text-emerald-700 mt-1">0</p>
+          </div>
+          <div class="bg-red-50 p-3 rounded-xl border border-red-100">
+            <p class="text-xs font-medium text-red-600 uppercase">Keluar / Outing</p>
+            <p id="stat-keluar" class="text-2xl font-black text-red-700 mt-1">0</p>
+          </div>
+        </div>
       </div>
+
+      <!-- KAD 2: PERINCIAN MENGIKUT TINGKATAN -->
+      <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+        <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4 flex items-center gap-2">🏫 Ringkasan Mengikut Tingkatan</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-bold">
+                <th class="p-3 rounded-l-lg">Tingkatan</th>
+                <th class="p-3 text-center">Jumlah</th>
+                <th class="p-3 text-center text-emerald-600">Masuk (Di Dalam)</th>
+                <th class="p-3 text-center text-red-600">Keluar (Di Luar)</th>
+              </tr>
+            </thead>
+            <tbody id="jadual-tingkatan" class="text-sm divide-y divide-slate-100">
+              <tr>
+                <td colspan="4" class="p-4 text-center text-gray-400 italic">Sila klik "Segarkan Data" untuk memuatkan statistik...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <script>
     let html5QrCode;
     let sedangMemproses = false;
-    let modKameraSekarang = "environment"; // Default kamera belakang
-    let statusSemasaArah = "MASUK"; // Default arah MASUK
+    let modKameraSekarang = "environment";
+    let statusSemasaArah = "MASUK";
+
+    // ⚠️ TAMPAL URL EXEC APPS SCRIPT ANDA DI SINI
+    const urlAPI = "PASTE_URL_WEB_APP_ANDA_DI_SINI";
 
     const configKamera = { 
       fps: 24, 
       qrbox: function(viewfinderWidth, viewfinderHeight) {
         let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-        let edgeSize = Math.floor(minEdge * 0.75); 
-        return { width: edgeSize, height: edgeSize };
+        return { width: Math.floor(minEdge * 0.75), height: Math.floor(minEdge * 0.75) };
       }
     };
 
-    // TUKAR INTERFACE IKUT TAB YANG DIPILIH
+    // Automatik muat data statistik sebaik sahaja laman web dibuka
+    window.onload = function() {
+      if(urlAPI !== "https://script.google.com/macros/s/AKfycbxTMFTblNqCwHpvSlTaYORfMe15hGkzb3CO-hhoE9B6-5gRPZAnQEY6Jnw1g8NWywGnEA/exec") {
+        muatNaikStatistik();
+      }
+    };
+
     function setModPergerakan(arah) {
       statusSemasaArah = arah;
       const tabMasuk = document.getElementById("tab-masuk");
@@ -105,13 +152,13 @@
       const bingkaiKamera = document.getElementById("bingkai-kamera");
 
       if (arah === "MASUK") {
-        tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-emerald-600 text-white shadow-md text-center";
-        tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-white text-slate-600 border border-slate-200 text-center";
-        bingkaiKamera.style.borderColor = "#10b981"; // Emerald Green
+        tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer";
+        tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
+        bingkaiKamera.style.borderColor = "#10b981";
       } else {
-        tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-red-600 text-white shadow-md text-center";
-        tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-white text-slate-600 border border-slate-200 text-center";
-        bingkaiKamera.style.borderColor = "#ef4444"; // Red
+        tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white shadow-md text-center cursor-pointer";
+        tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
+        bingkaiKamera.style.borderColor = "#ef4444";
       }
     }
 
@@ -125,33 +172,17 @@
       html5QrCode.start(
         { facingMode: facingModeTarget }, 
         configKamera,
-        (decodedText) => {
-          if (!sedangMemproses) {
-            try {
-              let context = new (window.AudioContext || window.webkitAudioContext)();
-              let osc = context.createOscillator();
-              osc.connect(context.destination);
-              osc.start();
-              setTimeout(() => osc.stop(), 100);
-            } catch(e) {}
-            prosesPenghantaranData(decodedText.trim());
-          }
-        },
+        (decodedText) => { if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); },
         (errorMessage) => {}
       ).then(() => {
         document.getElementById("btn-tukar-kamera").classList.remove("hidden");
-      }).catch((err) => {
-        document.getElementById('overlay-mula').style.display = 'flex';
-        alert("Gagal Akses Kamera.");
-      });
+      }).catch((err) => { alert("Gagal Akses Kamera."); });
     }
 
     function tukarKamera() {
       if (!html5QrCode) return;
       modKameraSekarang = (modKameraSekarang === "environment") ? "user" : "environment";
-      html5QrCode.stop().then(() => {
-        jalankanKamera(modKameraSekarang);
-      }).catch(err => console.error(err));
+      html5QrCode.stop().then(() => { jalankanKamera(modKameraSekarang); });
     }
 
     function hantarIDManual() {
@@ -159,62 +190,74 @@
       if (idInput) prosesPenghantaranData(idInput);
     }
 
+    // FUNGSI MEMANGGIL DATA REAL-TIME DARI GOOGLE SHEETS (doGet)
+    function muatNaikStatistik() {
+      fetch(urlAPI)
+      .then(res => res.json())
+      .then(data => {
+        if(data.status === "SUCCESS") {
+          document.getElementById("stat-total").innerText = data.keseluruhan.total;
+          document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk;
+          document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar;
+          
+          const tbody = document.getElementById("jadual-tingkatan");
+          tbody.innerHTML = "";
+          
+          // Susun data mengikut baris tingkatan
+          Object.keys(data.tingkatan).sort().forEach(tingkat => {
+            let row = data.tingkatan[tingkat];
+            tbody.innerHTML += `
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="p-3 font-bold text-slate-700">${tingkat}</td>
+                <td class="p-3 text-center font-medium">${row.total}</td>
+                <td class="p-3 text-center font-bold text-emerald-600 bg-emerald-50/30">${row.masuk}</td>
+                <td class="p-3 text-center font-bold text-red-600 bg-red-50/30">${row.keluar}</td>
+              </tr>
+            `;
+          });
+        }
+      }).catch(err => console.error("Gagal muat statistik:", err));
+    }
+
     function prosesPenghantaranData(idDitemui) {
       if (sedangMemproses) return;
       sedangMemproses = true; 
 
       const lencanaStatus = document.getElementById("notifikasi-badge");
-      lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 bg-amber-100 text-amber-800 block animate-pulse";
+      lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 bg-amber-100 text-amber-800 block";
       lencanaStatus.innerText = "Memproses (" + statusSemasaArah + ") ID: " + idDitemui + "...";
-
-      // ⚠️ TAMPAL URL EXEC APPS SCRIPT ANDA DI SINI
-      const urlAPI = "https://script.google.com/macros/s/AKfycbxQ28IINJLsYcFw7b62tDx26Zigvie8C0Xp1w19eSR8UdXaeoA2R5XwlIB_UcTI2O8gBQ/exec";
 
       fetch(urlAPI, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ idPelajar: idDitemui, arahPergerakan: statusSemasaArah })
       })
-      .then(response => {
-        if (!response.ok) throw new Error('Ralat Pelayan');
-        return response.json();
-      })
+      .then(res => res.json())
       .then(data => {
         if (data.status === "SUCCESS") {
           lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800";
           lencanaStatus.innerText = "✓ REKOD " + statusSemasaArah + " BERJAYA!";
           
-          document.getElementById("data-id").innerText = idDitemui;
           document.getElementById("data-nama").innerText = data.nama;
-          document.getElementById("data-tingkatan").innerText = data.tingkatan;
-          document.getElementById("data-kelas").innerText = data.kelas;
           document.getElementById("data-dorm").innerText = data.dorm;
           
-          const badgeStatus = document.getElementById("data-status");
-          badgeStatus.innerText = data.statusHadir;
-          if (data.statusHadir === "MASUK") {
-            badgeStatus.className = "bg-emerald-100 text-emerald-800 text-xs px-2.5 py-0.5 rounded font-black tracking-wider uppercase inline-block";
-          } else {
-            badgeStatus.className = "bg-red-100 text-red-800 text-xs px-2.5 py-0.5 rounded font-black tracking-wider uppercase inline-block";
-          }
-
-          document.getElementById("data-masa").innerText = new Date().toLocaleTimeString('ms-MY', {hour: '2-digit', minute:'2-digit'});
+          const b = document.getElementById("data-status");
+          b.innerText = data.statusHadir;
+          b.className = data.statusHadir === "MASUK" ? "bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded font-black uppercase" : "bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded font-black uppercase";
+          
           document.getElementById("kotak-maklumat").classList.remove("hidden");
+          
+          // Setiap kali imbasan sukses, automatik kemas kini angka di sidebar!
+          muatNaikStatistik();
         } else {
           lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800";
           lencanaStatus.innerText = "❌ ID TIADA DALAM DATABASE";
-          document.getElementById("kotak-maklumat").classList.add("hidden");
         }
         
         document.getElementById("id-manual").value = "";
-
-        setTimeout(() => {
-          sedangMemproses = false;
-          lencanaStatus.classList.add("hidden");
-        }, 2500);
+        setTimeout(() => { sedangMemproses = false; lencanaStatus.classList.add("hidden"); }, 2000);
       })
       .catch((error) => {
-        console.error("Ralat:", error);
         lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 bg-rose-600 text-white block";
         lencanaStatus.innerText = "❌ RALAT HUBUNGAN DATABASE";
         sedangMemproses = false;
