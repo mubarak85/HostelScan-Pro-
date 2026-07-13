@@ -3,20 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.1 - GitHub Pages</title>
+  <title>HostelScan Pro v5.0 - Cetak & Eksport</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Pustaka Kamera QR -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #bahagian-cetak, #bahagian-cetak * { visibility: visible; }
+      #bahagian-cetak { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
 </head>
 <body class="bg-slate-100 font-sans min-h-screen p-4 lg:p-6">
 
   <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
     
-    <!-- ================= PANEL KIRI: SCANNER SYSTEM ================= -->
-    <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full">
+    <!-- ================= PANEL KIRI: SCANNER SYSTEM (no-print) ================= -->
+    <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full no-print">
       <div class="bg-blue-600 p-5 text-white text-center relative">
-        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v4.1</h1>
+        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v5.0</h1>
         <p class="text-xs text-blue-200 mt-1">Terminal GitHub Pages & Log Pergerakan</p>
         <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
       </div>
@@ -59,11 +67,11 @@
       </div>
     </div>
 
-    <!-- ================= PANEL KANAN: SIDEBAR REKOD & ANALISA ================= -->
+    <!-- ================= PANEL KANAN: REKOD & ANALISA ================= -->
     <div class="lg:col-span-7 space-y-6 w-full">
       
-      <!-- KAD PENTING: PILIHAN TARIKH ANALISA -->
-      <div class="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <!-- PILIHAN TARIKH ANALISA (no-print) -->
+      <div class="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 no-print">
         <div class="flex items-center gap-2">
           <span class="text-xl">📅</span>
           <div>
@@ -93,7 +101,7 @@
             <p id="stat-masuk" class="text-2xl font-black text-emerald-700 mt-1">0</p>
           </div>
           <div class="bg-red-50 p-3 rounded-xl border border-red-100">
-            <p class="text-xs font-medium text-red-600 uppercase">Di Luar (Keluar)</p>
+            <p class="text-xs font-medium text-red-600 uppercase">Di Luar / Tiada Log</p>
             <p id="stat-keluar" class="text-2xl font-black text-red-700 mt-1">0</p>
           </div>
         </div>
@@ -108,13 +116,46 @@
               <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-bold">
                 <th class="p-3 rounded-l-lg">Tingkatan</th>
                 <th class="p-3 text-center">Jumlah</th>
-                <th class="p-3 text-center text-emerald-600">Masuk (Di Dalam)</th>
-                <th class="p-3 text-center text-red-600">Keluar (Di Luar)</th>
+                <th class="p-3 text-center text-emerald-600">Masuk (Hadir)</th>
+                <th class="p-3 text-center text-red-600">Belum Masuk</th>
               </tr>
             </thead>
             <tbody id="jadual-tingkatan" class="text-sm divide-y divide-slate-100">
               <tr>
                 <td colspan="4" class="p-4 text-center text-gray-400 italic">Memuatkan data analisa...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- KAD 3: SENARAI PELAJAR BELUM MASUK (BOLEH CETAK/EXCEL) -->
+      <div id="bahagian-cetak" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b pb-3 mb-4 gap-2">
+          <div>
+            <h2 class="font-bold text-slate-800 text-base">⚠️ Senarai Pelajar Belum Masuk / Di Luar</h2>
+            <p class="text-xs text-slate-400 no-print">Senarai nama pelajar yang tiada rekod 'MASUK' pada tarikh rujukan.</p>
+          </div>
+          <div class="flex gap-2 no-print">
+            <button onclick="eksportExcelCSV()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-3 rounded-lg flex items-center gap-1 cursor-pointer">🟢 Excel (.csv)</button>
+            <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2 px-3 rounded-lg flex items-center gap-1 cursor-pointer">🖨️ Cetak PDF</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse" id="jadual-belum-masuk">
+            <thead>
+              <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-bold">
+                <th class="p-2.5 rounded-l-lg">ID</th>
+                <th class="p-2.5">Nama</th>
+                <th class="p-2.5">Ting.</th>
+                <th class="p-2.5">Kelas</th>
+                <th class="p-2.5 rounded-r-lg">Dorm</th>
+              </tr>
+            </thead>
+            <tbody id="senarai-nama-belum-masuk" class="text-xs divide-y divide-slate-100">
+              <tr>
+                <td colspan="5" class="p-4 text-center text-gray-400 italic">Semua pelajar telah hadir atau data belum dimuatkan.</td>
               </tr>
             </tbody>
           </table>
@@ -129,9 +170,10 @@
     let sedangMemproses = false;
     let modKameraSekarang = "environment";
     let statusSemasaArah = "MASUK";
+    let dataPelajarBelumMasukGlobal = []; // Simpan data untuk eksport excel
 
-    // ⚠️ TAMPAL URL WEB APP (DEPLOYMENT) ANDA DI SINI (Mesti ada /exec di hujung)
-    const urlAPI = "https://script.google.com/macros/s/AKfycbyV3nyivY0t2eTbHrKsgATIhQ0RfPgmr8MDLJy1cVFwkcEOlqPvnfQ0kicstJQzk9XYQw/exec";
+    // ⚠️ TAMPAL URL WEB APP (DEPLOYMENT) ANDA DI SINI
+    const urlAPI = "https://script.google.com/macros/s/AKfycbxh5Q7xTGDD5Q_VDkppfKj4p5T3NznP_eXGUh-1OP4gOteYbebCFYciqMjvxCI8atsopA/exec";
 
     window.onload = function() {
       const hariIni = new Date();
@@ -187,6 +229,7 @@
       if (idInput) prosesPenghantaranData(idInput);
     }
 
+    // MUAT NAIK STATISTIK & SENARAI NAMA BELUM HADIR
     function muatNaikStatistik() {
       const tarikhPilihan = document.getElementById("pilih-tarikh").value;
       document.getElementById("label-tarikh-aktif").innerText = tarikhPilihan;
@@ -195,9 +238,11 @@
       .then(res => res.json())
       .then(data => {
         if (!data || !data.rumusan) return;
+        
+        // 1. Papar Ringkasan Tingkatan
         let tTotal = 0, tMasuk = 0, tKeluar = 0;
-        const tbody = document.getElementById("jadual-tingkatan");
-        tbody.innerHTML = "";
+        const tbodyTingkat = document.getElementById("jadual-tingkatan");
+        tbodyTingkat.innerHTML = "";
         
         Object.keys(data.rumusan).sort().forEach(tingkat => {
           let row = data.rumusan[tingkat];
@@ -205,7 +250,7 @@
           tMasuk += row.masuk || 0;
           tKeluar += row.keluar || 0;
 
-          tbody.innerHTML += `
+          tbodyTingkat.innerHTML += `
             <tr class="hover:bg-slate-50 transition-colors">
               <td class="p-3 font-bold text-slate-700">${tingkat}</td>
               <td class="p-3 text-center font-medium">${row.total}</td>
@@ -218,9 +263,31 @@
         document.getElementById("stat-total").innerText = tTotal;
         document.getElementById("stat-masuk").innerText = tMasuk;
         document.getElementById("stat-keluar").innerText = tKeluar;
+
+        // 2. Papar Senarai Nama Pelajar Belum Masuk
+        const tbodyBelumMasuk = document.getElementById("senarai-nama-belum-masuk");
+        tbodyBelumMasuk.innerHTML = "";
+        dataPelajarBelumMasukGlobal = data.senaraiBelumMasuk || [];
+
+        if (dataPelajarBelumMasukGlobal.length === 0) {
+          tbodyBelumMasuk.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-emerald-600 font-medium italic">🎉 Semua pelajar telah berada di dalam asrama!</td></tr>`;
+        } else {
+          dataPelajarBelumMasukGlobal.forEach(p => {
+            tbodyBelumMasuk.innerHTML += `
+              <tr class="hover:bg-red-50/40 transition-colors">
+                <td class="p-2.5 font-mono text-slate-600">${p.id}</td>
+                <td class="p-2.5 font-semibold text-slate-800">${p.nama}</td>
+                <td class="p-2.5 text-slate-600">${p.tingkatan}</td>
+                <td class="p-2.5 text-indigo-600 font-medium">${p.kelas}</td>
+                <td class="p-2.5 text-blue-600 font-medium">${p.dorm}</td>
+              </tr>
+            `;
+          });
+        }
       }).catch(err => console.error("Gagal muat statistik:", err));
     }
 
+    // PROSES PENGHANTARAN IMBASAN
     function prosesPenghantaranData(idDitemui) {
       if (sedangMemproses) return;
       sedangMemproses = true; 
@@ -240,7 +307,6 @@
           lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800";
           lencanaStatus.innerText = "✓ REKOD " + statusSemasaArah + " BERJAYA!";
           
-          // Anti-Undefined Fallback '|| "-"'
           document.getElementById("data-nama").innerText = response.nama || "-";
           document.getElementById("data-kelas").innerText = response.kelas || "-";
           document.getElementById("data-dorm").innerText = response.dorm || "-";
@@ -260,11 +326,35 @@
         setTimeout(() => { sedangMemproses = false; lencanaStatus.classList.add("hidden"); }, 2500);
       })
       .catch(err => {
-        console.error("Ralat penuh:", err);
         lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 bg-rose-600 text-white block";
         lencanaStatus.innerText = "❌ RALAT HUBUNGAN DATABASE";
         sedangMemproses = false;
       });
+    }
+
+    // FUNGSI JANA EXCEL (CSV) SECARA REAL-TIME DIRECT DOWNLOAD
+    function eksportExcelCSV() {
+      if (dataPelajarBelumMasukGlobal.length === 0) {
+        alert("Tiada data pelajar belum masuk untuk dieksport.");
+        return;
+      }
+      
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "ID Pelajar,Nama Pelajar,Tingkatan,Kelas,Dorm\n"; // Header Excel
+      
+      dataPelajarBelumMasukGlobal.forEach(p => {
+        let baris = `"${p.id}","${p.nama}","${p.tingkatan}","${p.kelas}","${p.dorm}"`;
+        csvContent += baris + "\n";
+      });
+      
+      const tarikhFail = document.getElementById("pilih-tarikh").value;
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Pelajar_Belum_Masuk_${tarikhFail}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   </script>
 </body>
