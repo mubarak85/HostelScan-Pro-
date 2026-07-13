@@ -47,14 +47,14 @@
         </div>
 
         <!-- CARIAN MANUAL -->
-        <details class="group border-t pt-2">
+        <details class="group border-t pt-2" open>
           <summary class="list-none flex justify-between items-center font-semibold text-xs text-gray-400 cursor-pointer py-1">
             <span>✏️ Taip ID Manual</span>
             <span class="transition group-open:rotate-180 text-[10px]">▼</span>
           </summary>
           <div class="flex gap-2 mt-2">
-            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-1.5 border rounded-lg text-sm uppercase font-mono">
-            <button onclick="hantarIDManual()" class="bg-slate-700 text-white font-bold px-4 py-1.5 rounded-lg text-sm">Semak</button>
+            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-1.5 border rounded-lg text-sm uppercase font-mono bg-white text-slate-800 focus:outline-blue-500">
+            <button onclick="hantarIDManual()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-1.5 rounded-lg text-sm cursor-pointer transition-colors">Semak</button>
           </div>
         </details>
       </div>
@@ -128,7 +128,7 @@
     let statusSemasaArah = "MASUK";
 
     // ⚠️ TAMPAL URL EXEC APPS SCRIPT ANDA DI SINI
-    const urlAPI = "https://script.google.com/macros/s/AKfycbztUjNFPJzLubH53yM5txVR0kobhFC-yYyLTgbHs7mI-gPkLXqHdP4iK5XYQOCgpe72YA/exec";
+    const urlAPI = "PASTE_URL_WEB_APP_ANDA_DI_SINI";
 
     const configKamera = { 
       fps: 24, 
@@ -168,6 +168,16 @@
       jalankanKamera(modKameraSekarang);
     }
 
+    // Fungsi pencetus apabila butang 'Semak' manual ditekan
+    function hantarIDManual() {
+      const idInput = document.getElementById("id-manual").value.trim();
+      if (!idInput) {
+        alert("Sila taip ID pelajar terlebih dahulu.");
+        return;
+      }
+      prosesPenghantaranData(idInput);
+    }
+
     function jalankanKamera(facingModeTarget) {
       html5QrCode.start(
         { facingMode: facingModeTarget }, 
@@ -185,13 +195,10 @@
       html5QrCode.stop().then(() => { jalankanKamera(modKameraSekarang); });
     }
 
-    function hantarIDManual() {
-      const idInput = document.getElementById("id-manual").value.trim();
-      if (idInput) prosesPenghantaranData(idInput);
-    }
-
     // FUNGSI MEMANGGIL DATA REAL-TIME DARI GOOGLE SHEETS (doGet)
     function muatNaikStatistik() {
+      if (urlAPI === "PASTE_URL_WEB_APP_ANDA_DI_SINI") return;
+      
       fetch(urlAPI)
       .then(res => res.json())
       .then(data => {
@@ -203,7 +210,6 @@
           const tbody = document.getElementById("jadual-tingkatan");
           tbody.innerHTML = "";
           
-          // Susun data mengikut baris tingkatan
           Object.keys(data.tingkatan).sort().forEach(tingkat => {
             let row = data.tingkatan[tingkat];
             tbody.innerHTML += `
@@ -221,6 +227,10 @@
 
     function prosesPenghantaranData(idDitemui) {
       if (sedangMemproses) return;
+      if (urlAPI === "https://script.google.com/macros/s/AKfycbztUjNFPJzLubH53yM5txVR0kobhFC-yYyLTgbHs7mI-gPkLXqHdP4iK5XYQOCgpe72YA/exec") {
+        alert("Sila masukkan URL Web App Google Apps Script anda terlebih dahulu pada kod.");
+        return;
+      }
       sedangMemproses = true; 
 
       const lencanaStatus = document.getElementById("notifikasi-badge");
@@ -247,7 +257,6 @@
           
           document.getElementById("kotak-maklumat").classList.remove("hidden");
           
-          // Setiap kali imbasan sukses, automatik kemas kini angka di sidebar!
           muatNaikStatistik();
         } else {
           lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800";
