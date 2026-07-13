@@ -1,159 +1,269 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Imbasan Kehadiran Asrama</title>
-    <!-- Membawa masuk perpustakaan QR Scanner html5-qrcode -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-    <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f4f6f9; color: #333; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 500px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 10px; }
-        h2 { text-align: center; color: #1a365d; margin-bottom: 15px; font-size: 1.4rem; }
-        
-        /* Pilihan Mod Status */
-        .status-selector { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn-status { flex: 1; padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-weight: bold; cursor: pointer; background: white; transition: all 0.2s; font-size: 1rem; }
-        .btn-status.active-masuk { background-color: #10b981; color: white; border-color: #10b981; }
-        .btn-status.active-keluar { background-color: #ef4444; color: white; border-color: #ef4444; }
-        
-        /* Kotak Scanner & Input Manual */
-        #reader { width: 100%; border-radius: 8px; overflow: hidden; border: none; background: #e2e8f0; }
-        .manual-section { margin-top: 20px; border-top: 2px dashed #e2e8f0; padding-top: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; color: #475569; font-size: 0.9rem; }
-        .input-group { display: flex; gap: 8px; }
-        input[type="text"] { flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; outline: none; }
-        input[type="text"]:focus { border-color: #3b82f6; }
-        .btn-submit { padding: 0 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-        .btn-submit:hover { background: #2563eb; }
-        
-        /* Paparan Keputusan Result */
-        #result-box { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; text-align: center; font-weight: 500; animation: fadeIn 0.3s ease-in-out; }
-        .success-box { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .error-box { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-        .loading-box { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HostelScan Pro v3.0 - Dashboard Warden</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <!-- Pustaka Kamera QR -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 </head>
-<body>
+<body class="bg-slate-100 font-sans min-h-screen p-4 lg:p-6">
 
-    <div class="container">
-        <h2>REKOD KEHADIRAN ASRAMA</h2>
-        
-        <!-- Pilihan Mod Status -->
-        <div class="status-selector">
-            <button class="btn-status active-masuk" id="btn-masuk" onclick="tukarStatus('MASUK')">👉 MASUK</button>
-            <button class="btn-status" id="btn-keluar" onclick="tukarStatus('KELUAR')">👈 KELUAR</button>
-        </div>
+  <!-- CONTAINER UTAMA DWI-PANEL -->
+  <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    
+    <!-- ================= PANEL KIRI: SCANNER SYSTEM (4 Lajur) ================= -->
+    <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full">
+      <!-- Header -->
+      <div class="bg-blue-600 p-5 text-white text-center relative">
+        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.0</h1>
+        <p class="text-xs text-blue-200 mt-1">Terminal Imbasan & Log Pergerakan</p>
+        <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
+      </div>
 
-        <!-- Kawasan Kamera QR Kod -->
-        <div id="reader"></div>
+      <!-- SUIS MOD PERGERAKAN -->
+      <div class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
+        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-emerald-600 text-white shadow-md text-center">
+          📥 DAFTAR MASUK
+        </button>
+        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-white text-slate-600 border border-slate-200 text-center">
+          📤 BALIK / OUTING
+        </button>
+      </div>
 
-        <!-- Kawasan Input Taip Manual -->
-        <div class="manual-section">
-            <label for="manual-id">Jika QR rosak, taip ID Pelajar di bawah:</label>
-            <div class="input-group">
-                <input type="text" id="manual-id" placeholder="Contoh: P00123" autocomplete="off">
-                <button class="btn-submit" onclick="hantarManual()">Hantar</button>
+      <div class="p-5 space-y-4">
+        <!-- PETAK KAMERA -->
+        <div class="text-center space-y-2">
+          <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 shadow-sm flex items-center justify-center">
+            <div id="reader" class="w-full h-full"></div>
+            <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
+              <button onclick="mulaKameraGitHub()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md text-sm uppercase">
+                📷 Aktifkan Kamera Live
+              </button>
             </div>
+          </div>
         </div>
 
-        <!-- Kotak Keputusan Log Respon -->
-        <div id="result-box"></div>
+        <!-- CARIAN MANUAL -->
+        <details class="group border-t pt-2" open>
+          <summary class="list-none flex justify-between items-center font-semibold text-xs text-gray-400 cursor-pointer py-1">
+            <span>✏️ Taip ID Manual</span>
+            <span class="transition group-open:rotate-180 text-[10px]">▼</span>
+          </summary>
+          <div class="flex gap-2 mt-2">
+            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-1.5 border rounded-lg text-sm uppercase font-mono bg-white text-slate-800">
+            <button onclick="hantarIDManual()" class="bg-slate-700 text-white font-bold px-4 py-1.5 rounded-lg text-sm cursor-pointer">Semak</button>
+          </div>
+        </details>
+      </div>
+
+      <!-- KOTAK DATA IMBAZAN TERAKHIR -->
+      <div class="p-5 border-t border-slate-100 bg-slate-50/50 min-h-[100px]">
+        <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3"></div>
+        <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Nama</span><span class="col-span-2 font-bold text-slate-800" id="data-nama">-</span></div>
+          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Dorm</span><span class="col-span-2 font-bold text-blue-600" id="data-dorm">-</span></div>
+          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Status</span><span class="col-span-2"><span id="data-status" class="text-xs px-2 py-0.5 rounded font-black uppercase">-</span></span></div>
+        </div>
+      </div>
     </div>
 
-    <script>
-        // ==========================================
-        // ⚠️ SILA GANTIKAN URL DI BAWAH DENGAN URL WEB APP GAS ANDA
-        // ==========================================
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwRqUL3LbdYOzAbA_3yQfK6sqBZYVgBKOD3GXb1Eauhxno8jxaU_Oo5hQjEIWuqPcTZOw/exec"; 
+    <!-- ================= PANEL KANAN: SIDEBAR REKOD & ANALISA (7 Lajur) ================= -->
+    <div class="lg:col-span-7 space-y-6 w-full">
+      
+      <!-- KAD 1: ANALISA KESELURUHAN -->
+      <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+          <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">📊 Analisa Keseluruhan Pelajar</h2>
+          <button onclick="muatNaikStatistik()" class="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-lg border border-blue-200 hover:bg-blue-100 font-semibold cursor-pointer">🔄 Segarkan Data</button>
+        </div>
+        
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <p class="text-xs font-medium text-slate-500 uppercase">Jumlah Besar</p>
+            <p id="stat-total" class="text-2xl font-black text-slate-800 mt-1">0</p>
+          </div>
+          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+            <p class="text-xs font-medium text-emerald-600 uppercase">Ada Di Asrama</p>
+            <p id="stat-masuk" class="text-2xl font-black text-emerald-700 mt-1">0</p>
+          </div>
+          <div class="bg-red-50 p-3 rounded-xl border border-red-100">
+            <p class="text-xs font-medium text-red-600 uppercase">Keluar / Outing</p>
+            <p id="stat-keluar" class="text-2xl font-black text-red-700 mt-1">0</p>
+          </div>
+        </div>
+      </div>
 
-        let modSemasa = "MASUK";
-        letisScanning = true;
+      <!-- KAD 2: PERINCIAN MENGIKUT TINGKATAN -->
+      <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+        <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4 flex items-center gap-2">🏫 Ringkasan Mengikut Tingkatan</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-bold">
+                <th class="p-3 rounded-l-lg">Tingkatan</th>
+                <th class="p-3 text-center">Jumlah</th>
+                <th class="p-3 text-center text-emerald-600">Masuk (Di Dalam)</th>
+                <th class="p-3 text-center text-red-600">Keluar (Di Luar)</th>
+              </tr>
+            </thead>
+            <tbody id="jadual-tingkatan" class="text-sm divide-y divide-slate-100">
+              <tr>
+                <td colspan="4" class="p-4 text-center text-gray-400 italic">Sila klik "Segarkan Data" untuk memuatkan statistik...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-        function tukarStatus(status) {
-            modSemasa = status;
-            const btnMasuk = document.getElementById('btn-masuk');
-            const btnKeluar = document.getElementById('btn-keluar');
-            
-            if(status === 'MASUK') {
-                btnMasuk.className = 'btn-status active-masuk';
-                btnKeluar.className = 'btn-status';
-            } else {
-                btnMasuk.className = 'btn-status';
-                btnKeluar.className = 'btn-status active-keluar';
-            }
+    </div>
+  </div>
+
+  <script>
+    let html5QrCode;
+    let sedangMemproses = false;
+    let modKameraSekarang = "environment";
+    let statusSemasaArah = "MASUK";
+
+    // ⚠️ TAMPAL URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
+    const urlAPI = "https://script.google.com/macros/s/AKfycbwRqUL3LbdYOzAbA_3yQfK6sqBZYVgBKOD3GXb1Eauhxno8jxaU_Oo5hQjEIWuqPcTZOw/exec";
+
+    const configKamera = { 
+      fps: 24, 
+      qrbox: function(viewfinderWidth, viewfinderHeight) {
+        let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+        return { width: Math.floor(minEdge * 0.75), height: Math.floor(minEdge * 0.75) };
+      }
+    };
+
+    window.onload = function() {
+      if(urlAPI !== "https://script.google.com/macros/s/AKfycbwRqUL3LbdYOzAbA_3yQfK6sqBZYVgBKOD3GXb1Eauhxno8jxaU_Oo5hQjEIWuqPcTZOw/exec") {
+        muatNaikStatistik();
+      }
+    };
+
+    function setModPergerakan(arah) {
+      statusSemasaArah = arah;
+      const tabMasuk = document.getElementById("tab-masuk");
+      const tabKeluar = document.getElementById("tab-keluar");
+      const bingkaiKamera = document.getElementById("bingkai-kamera");
+
+      if (arah === "MASUK") {
+        tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer";
+        tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
+        bingkaiKamera.style.borderColor = "#10b981";
+      } else {
+        tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white shadow-md text-center cursor-pointer";
+        tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
+        bingkaiKamera.style.borderColor = "#ef4444";
+      }
+    }
+
+    function mulaKameraGitHub() {
+      document.getElementById('overlay-mula').style.display = 'none';
+      html5QrCode = new Html5Qrcode("reader");
+      jalankanKamera(modKameraSekarang);
+    }
+
+    function jalankanKamera(facingModeTarget) {
+      html5QrCode.start(
+        { facingMode: facingModeTarget }, 
+        configKamera,
+        (decodedText) => { if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); },
+        (errorMessage) => {}
+      ).then(() => {
+        document.getElementById("btn-tukar-kamera").classList.remove("hidden");
+      }).catch((err) => { alert("Gagal Akses Kamera."); });
+    }
+
+    function tukarKamera() {
+      if (!html5QrCode) return;
+      modKameraSekarang = (modKameraSekarang === "environment") ? "user" : "environment";
+      html5QrCode.stop().then(() => { jalankanKamera(modKameraSekarang); });
+    }
+
+    function hantarIDManual() {
+      const idInput = document.getElementById("id-manual").value.trim();
+      if (idInput) {
+        prosesPenghantaranData(idInput);
+      } else {
+        alert("Sila taip ID pelajar terlebih dahulu.");
+      }
+    }
+
+    function muatNaikStatistik() {
+      if(urlAPI === "https://script.google.com/macros/s/AKfycbwRqUL3LbdYOzAbA_3yQfK6sqBZYVgBKOD3GXb1Eauhxno8jxaU_Oo5hQjEIWuqPcTZOw/exec") return;
+      
+      fetch(urlAPI)
+      .then(res => res.json())
+      .then(data => {
+        if(data.status === "SUCCESS") {
+          document.getElementById("stat-total").innerText = data.keseluruhan.total;
+          document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk;
+          document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar;
+          
+          const tbody = document.getElementById("jadual-tingkatan");
+          tbody.innerHTML = "";
+          
+          Object.keys(data.tingkatan).sort().forEach(tingkat => {
+            let row = data.tingkatan[tingkat];
+            tbody.innerHTML += `
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="p-3 font-bold text-slate-700">${tingkat}</td>
+                <td class="p-3 text-center font-medium">${row.total}</td>
+                <td class="p-3 text-center font-bold text-emerald-600 bg-emerald-50/30">${row.masuk}</td>
+                <td class="p-3 text-center font-bold text-red-600 bg-red-50/30">${row.keluar}</td>
+              </tr>
+            `;
+          });
         }
+      }).catch(err => console.error("Gagal muat statistik:", err));
+    }
 
-        // Papar mesej status maklum balas kepada pengguna
-        function paparMesej(teks, jenis) {
-            const box = document.getElementById('result-box');
-            box.style.display = 'block';
-            box.className = ''; // Reset class
-            
-            if(jenis === 'success') box.classList.add('result-box', 'success-box');
-            if(jenis === 'error') box.classList.add('result-box', 'error-box');
-            if(jenis === 'loading') box.classList.add('result-box', 'loading-box');
-            
-            box.innerHTML = teks;
+    function prosesPenghantaranData(idDitemui) {
+      if (sedangMemproses) return;
+      sedangMemproses = true; 
+
+      const lencanaStatus = document.getElementById("notifikasi-badge");
+      lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 bg-amber-100 text-amber-800 block";
+      lencanaStatus.innerText = "Memproses (" + statusSemasaArah + ") ID: " + idDitemui + "...";
+
+      fetch(urlAPI, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ idPelajar: idDitemui, arahPergerakan: statusSemasaArah })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "SUCCESS") {
+          lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800";
+          lencanaStatus.innerText = "✓ REKOD " + statusSemasaArah + " BERJAYA!";
+          
+          document.getElementById("data-nama").innerText = data.nama;
+          document.getElementById("data-dorm").innerText = data.dorm;
+          
+          const b = document.getElementById("data-status");
+          b.innerText = data.statusHadir;
+          b.className = data.statusHadir === "MASUK" ? "bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded font-black uppercase" : "bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded font-black uppercase";
+          
+          document.getElementById("kotak-maklumat").classList.remove("hidden");
+          muatNaikStatistik();
+        } else {
+          lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800";
+          lencanaStatus.innerText = "❌ ID TIADA DALAM DATABASE";
         }
-
-        // Proses utama menghantar data ID ke Google Sheets via Apps Script
-        function prosesImbasan(idPelajar Raw) {
-            if (!idPelajarRaw) return;
-            const idPelajar = idPelajarRaw.trim();
-            
-            paparMesej("Sila tunggu... Memproses ID " + idPelajar, "loading");
-            
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                mode: "no-cors", // Mengelakkan isu sekatan CORS pelayar web
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ idPelajar: idPelajar, status: modSemasa })
-            })
-            .then(() => {
-                // Disebabkan 'no-cors', kita tidak boleh baca json respon secara langsung,
-                // Namun data dijamin selamat sampai ke Sheets jika URL Web App anda betul.
-                paparMesej("<b>✓ Selesai diproses!</b><br>ID: " + idPelajar + "<br>Status: " + modSemasa + "<br><small>Sila semak tab Kehadiran jika peranti bersambung internet.</small>", "success");
-                document.getElementById('manual-id').value = ""; // Kosongkan ruangan input manual
-                
-                // Beri ruang jeda 3 saat sebelum membolehkan imbasan seterusnya
-                setTimeout(() => { isScanning = true; }, 3000);
-            })
-            .catch(error => {
-                paparMesej("❌ RALAT HUBUNGAN DATABASE<br><small>Pastikan Apps Script telah di-deploy dengan betul sebagai 'Anyone'.</small>", "error");
-                setTimeout(() => { isScanning = true; }, 3000);
-            });
-        }
-
-        // Fungsi pemicu butang hantar input manual
-        function hantarManual() {
-            const inputVal = document.getElementById('manual-id').value;
-            if(!inputVal) {
-                paparMesej("❌ Sila masukkan ID Pelajar terlebih dahulu!", "error");
-                return;
-            }
-            isScanning = false;
-            prosesImbasan(inputVal);
-        }
-
-        // Konfigurasi Kamera Menggunakan html5-qrcode
-        function onScanSuccess(decodedText, decodedResult) {
-            if (isScanning) {
-                isScanning = false; // Hentikan seketika untuk elak imbasan berlapis
-                prosesImbasan(decodedText);
-            }
-        }
-
-        function onScanFailure(error) {
-            // Kegagalan imbasan kecil (frame kabur dll) diabaikan secara senyap untuk kelancaran video live feed
-        }
-
-        // Memulakan scanner secara automatik menggunakan kamera belakang telefon
-        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-    </script>
+        
+        document.getElementById("id-manual").value = "";
+        setTimeout(() => { sedangMemproses = false; lencanaStatus.classList.add("hidden"); }, 2000);
+      })
+      .catch((error) => {
+        lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 bg-rose-600 text-white block";
+        lencanaStatus.innerText = "❌ RALAT HUBUNGAN DATABASE";
+        sedangMemproses = false;
+      });
+    }
+  </script>
 </body>
 </html>
