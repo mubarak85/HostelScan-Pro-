@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.0 - GitHub Edition</title>
+  <title>HostelScan Pro v4.0 - GitHub Pages</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Pustaka Kamera QR -->
@@ -17,7 +17,7 @@
     <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full">
       <div class="bg-blue-600 p-5 text-white text-center relative">
         <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v4.0</h1>
-        <p class="text-xs text-blue-200 mt-1">Terminal GitHub & Log Pergerakan (7 Lajur)</p>
+        <p class="text-xs text-blue-200 mt-1">Terminal GitHub Pages & Log Pergerakan</p>
         <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
       </div>
 
@@ -130,8 +130,8 @@
     let modKameraSekarang = "environment";
     let statusSemasaArah = "MASUK";
 
-    // ⚠️ TAMPAL URL WEB APP (DEPLOYMENT URL) ANDA DI SINI
-    const urlAPI = "https://script.google.com/macros/s/AKfycbzN77ARGMD2vfmdWHCKS748vjhdvf6Zx-dJdsDBp2ESVMc0-7SSDnGx3y5xRooWtZrvWg/exec";
+    // ⚠️ GANTIKAN DENGAN URL WEB APP (NEW DEPLOYMENT) ANDA DI SINI (Pastikan ada /exec di hujung)
+    const urlAPI = "https://script.google.com/macros/s/AKfycbwPqIUE0uhxK0iN73ofdtfLL2WojALgS0oVQ46cdR3Mk2LekgPWojVrviGm_umFvf2jiA/exec";
 
     window.onload = function() {
       const hariIni = new Date();
@@ -187,7 +187,6 @@
       if (idInput) prosesPenghantaranData(idInput);
     }
 
-    // MEMANGGIL DATA STATISTIK BERDASARKAN TARIKH (Guna Fetch API untuk GitHub)
     function muatNaikStatistik() {
       const tarikhPilihan = document.getElementById("pilih-tarikh").value;
       document.getElementById("label-tarikh-aktif").innerText = tarikhPilihan;
@@ -221,7 +220,6 @@
       }).catch(err => console.error("Gagal muat statistik:", err));
     }
 
-    // MENGHANTAR DATA IMBASAN KE WEB APP (Guna Fetch POST untuk GitHub)
     function prosesPenghantaranData(idDitemui) {
       if (sedangMemproses) return;
       sedangMemproses = true; 
