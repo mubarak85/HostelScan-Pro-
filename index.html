@@ -121,7 +121,7 @@
     </div>
   </div>
 
-  <script>
+ <script>
     let html5QrCode;
     let sedangMemproses = false;
     let modKameraSekarang = "environment";
@@ -193,8 +193,9 @@
       }
     }
 
+    // MEMBAIKI SAMBUNGAN GET (Bebas CORS)
     function muatNaikStatistik() {
-      fetch(urlAPI)
+      fetch(urlAPI + "?tarikh=" + new Date().toISOString().split('T')[0])
       .then(res => res.json())
       .then(data => {
         if(data.status === "SUCCESS") {
@@ -205,7 +206,7 @@
           const tbody = document.getElementById("jadual-tingkatan");
           tbody.innerHTML = "";
           
-          if (Object.keys(data.tingkatan).length === 0) {
+          if (!data.tingkatan || Object.keys(data.tingkatan).length === 0) {
             tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400 italic">Tiada data kelas dijumpai.</td></tr>`;
             return;
           }
@@ -227,6 +228,7 @@
       });
     }
 
+    // MEMBAIKI SAMBUNGAN POST MENGGUNAKAN FORMDATA (Selesai Masalah Ralat Hubungan)
     function prosesPenghantaranData(idDitemui) {
       if (sedangMemproses) return;
       sedangMemproses = true; 
@@ -235,10 +237,14 @@
       lencanaStatus.className = "text-center py-2 px-4 rounded-xl font-bold text-sm mb-3 bg-amber-100 text-amber-800 block shadow-sm border border-amber-200";
       lencanaStatus.innerText = "Mengirim (" + statusSemasaArah + ") ID: " + idDitemui + "...";
 
-      // PEMBERSIHAN RANGKAIAN: Format pemanggilan data URLSearchParams bagi membendung ralat CORS dan undefined
+      // Tukar ke FormData untuk melepasi sekatan Google Apps Script CORS dengan sempurna
+      const formData = new FormData();
+      formData.append("idPelajar", idDitemui);
+      formData.append("arahPergerakan", statusSemasaArah);
+
       fetch(urlAPI, {
         method: "POST",
-        body: new URLSearchParams({ idPelajar: idDitemui, arahPergerakan: statusSemasaArah })
+        body: formData
       })
       .then(res => res.json())
       .then(data => {
@@ -246,7 +252,6 @@
           lencanaStatus.className = "text-center py-2 px-4 rounded-xl font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm";
           lencanaStatus.innerText = "✓ REKOD " + statusSemasaArah + " BERJAYA!";
           
-          // Memaparkan maklumat tanpa ralat undefined melalui semakan nilai asas
           document.getElementById("data-nama").innerText = data.nama || "Pelajar Tiada Nama";
           document.getElementById("data-dorm").innerText = data.dorm || "Dorm -";
           
@@ -258,7 +263,7 @@
           
           document.getElementById("kotak-maklumat").classList.remove("hidden");
           
-          // Segarkan semula data analitik di sebelah kanan secara automatik
+          // Segarkan semula data analitik secara automatik
           muatNaikStatistik();
         } else {
           lencanaStatus.className = "text-center py-2 px-4 rounded-xl font-bold text-sm mb-3 block bg-rose-100 text-rose-800 border border-rose-200 shadow-sm";
@@ -283,5 +288,3 @@
       });
     }
   </script>
-</body>
-</html>
