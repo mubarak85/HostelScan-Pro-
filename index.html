@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.1</title>
+  <title>HostelScan Pro v4.2</title>
   <!-- Tailwind CSS v4 -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Pustaka Kamera QR -->
@@ -22,7 +22,7 @@
     <div class="lg:col-span-5 bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
       <!-- Header Biru Tua -->
       <div class="bg-[#1e40af] p-6 text-white text-center relative">
-        <h1 class="text-2xl font-black tracking-wider">HOSTELSCAN PRO v4.1</h1>
+        <h1 class="text-2xl font-black tracking-wider">HOSTELSCAN PRO v4.2</h1>
         <p class="text-xs text-blue-200 mt-1 tracking-widest uppercase">Terminal Imbasan & Info Pelajar</p>
         <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full text-xs">🔄</button>
       </div>
@@ -48,7 +48,7 @@
           </div>
         </div>
 
-        <!-- CARIAN MANUAL ASAL -->
+        <!-- CARIAN MANUAL -->
         <div class="border-t border-slate-200 pt-4">
           <p class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1">✏️ Taip ID Manual</p>
           <div class="flex gap-2">
@@ -220,7 +220,10 @@
       tBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">Memuat data terkini...</td></tr>`;
 
       fetch(`${urlAPI}?tarikh=${tarikhPilihan}`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Respons pelayan tidak sah (Status: " + res.status + ")");
+        return res.json();
+      })
       .then(data => {
         if(data.status === "SUCCESS") {
           document.getElementById("stat-total").innerText = data.keseluruhan.total || "0";
@@ -245,10 +248,12 @@
               `;
             });
           }
+        } else {
+          tBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-red-600 font-bold">❌ Mesej GAS: ${data.message}</td></tr>`;
         }
       }).catch(err => {
         console.error("Gagal muat statistik:", err);
-        tBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-red-600">Gagal menyambung ke database.</td></tr>`;
+        tBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-red-600 font-bold">❌ Gagal Menyambung Database.<br><span class="text-[10px] font-normal text-slate-500">Sila pastikan Web App telah di-deploy sebagai 'Anyone' dan URL disalin tepat.</span></td></tr>`;
       });
     }
 
@@ -289,7 +294,7 @@
           muatNaikStatistik();
         } else {
           lencanaStatus.className = "text-center py-2 px-4 rounded-lg font-black text-xs uppercase mb-2 tracking-wider block bg-rose-100 text-rose-800";
-          lencanaStatus.innerText = "❌ ID TIADA DALAM DATABASE";
+          lencanaStatus.innerText = data.message || "❌ ID TIADA DALAM DATABASE";
         }
         
         document.getElementById("id-manual").value = "";
