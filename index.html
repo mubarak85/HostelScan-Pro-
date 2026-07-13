@@ -62,7 +62,7 @@
       <!-- KOTAK DATA IMBAZAN TERAKHIR -->
       <div class="p-5 border-t border-slate-100 bg-slate-50/50 min-h-[120px]">
         <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-xl font-bold text-sm mb-3"></div>
-        <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm transition-all animate-fade-in">
+        <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm transition-all">
           <div class="grid grid-cols-3 text-sm border-b border-slate-100 pb-1"><span class="text-slate-400">Nama</span><span class="col-span-2 font-bold text-slate-800" id="data-nama">-</span></div>
           <div class="grid grid-cols-3 text-sm border-b border-slate-100 pb-1"><span class="text-slate-400">Dorm</span><span class="col-span-2 font-bold text-blue-600" id="data-dorm">-</span></div>
           <div class="grid grid-cols-3 text-sm pt-1"><span class="text-slate-400">Status</span><span class="col-span-2"><span id="data-status" class="text-xs px-2.5 py-0.5 rounded-md font-black uppercase">-</span></span></div>
@@ -121,14 +121,14 @@
     </div>
   </div>
 
- <script>
+  <script>
     let html5QrCode;
     let sedangMemproses = false;
     let modKameraSekarang = "environment";
     let statusSemasaArah = "MASUK";
 
-    // ⚠️ PASTIKAN URL DEPLOYMENT ANDA ADALAH BETUL DI SINI
-    const urlAPI = "https://script.google.com/macros/s/AKfycbwJu1GlOHpGqLl0miaDWbKQvSKb7l0DQZ6ToIs_sTd5wRD5wGWeQVkUXnfpdVQVyXO9iQ/exec";
+    // ⚠️ PASTIKAN URL WEB APP SKRIP ANDA DILETAKKAN DI SINI
+    const urlAPI = "https://script.google.com/macros/s/AKfycbwIjWHTyuPb4nBIWkDo6dFsgLIW4W659arQQwq8l2sslL6j_TJohz_hbe08esWoOh03SQ/exec";
 
     const configKamera = { 
       fps: 24, 
@@ -139,7 +139,7 @@
     };
 
     window.onload = function() {
-      if(urlAPI !== "https://script.google.com/macros/s/AKfycbwJu1GlOHpGqLl0miaDWbKQvSKb7l0DQZ6ToIs_sTd5wRD5wGWeQVkUXnfpdVQVyXO9iQ/exec") {
+      if(urlAPI !== "https://script.google.com/macros/s/AKfycbwIjWHTyuPb4nBIWkDo6dFsgLIW4W659arQQwq8l2sslL6j_TJohz_hbe08esWoOh03SQ/exec") {
         muatNaikStatistik();
       }
     };
@@ -193,7 +193,6 @@
       }
     }
 
-    // MEMBAIKI SAMBUNGAN GET (Bebas CORS)
     function muatNaikStatistik() {
       fetch(urlAPI + "?tarikh=" + new Date().toISOString().split('T')[0])
       .then(res => res.json())
@@ -228,7 +227,6 @@
       });
     }
 
-    // MEMBAIKI SAMBUNGAN POST MENGGUNAKAN FORMDATA (Selesai Masalah Ralat Hubungan)
     function prosesPenghantaranData(idDitemui) {
       if (sedangMemproses) return;
       sedangMemproses = true; 
@@ -237,7 +235,7 @@
       lencanaStatus.className = "text-center py-2 px-4 rounded-xl font-bold text-sm mb-3 bg-amber-100 text-amber-800 block shadow-sm border border-amber-200";
       lencanaStatus.innerText = "Mengirim (" + statusSemasaArah + ") ID: " + idDitemui + "...";
 
-      // Tukar ke FormData untuk melepasi sekatan Google Apps Script CORS dengan sempurna
+      // Menggunakan FormData bagi membendung sekatan CORS pihak Google Apps Script dengan berkesan
       const formData = new FormData();
       formData.append("idPelajar", idDitemui);
       formData.append("arahPergerakan", statusSemasaArah);
@@ -263,7 +261,7 @@
           
           document.getElementById("kotak-maklumat").classList.remove("hidden");
           
-          // Segarkan semula data analitik secara automatik
+          // Segarkan data statistik di panel kanan serta-merta
           muatNaikStatistik();
         } else {
           lencanaStatus.className = "text-center py-2 px-4 rounded-xl font-bold text-sm mb-3 block bg-rose-100 text-rose-800 border border-rose-200 shadow-sm";
@@ -288,3 +286,5 @@
       });
     }
   </script>
+</body>
+</html>
