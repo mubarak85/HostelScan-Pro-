@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.0</title>
+  <title>HostelScan Pro v4.1</title>
   <!-- Tailwind CSS v4 -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Pustaka Kamera QR -->
@@ -20,12 +20,14 @@
     
     <!-- ================= PANEL KIRI: TERMINAL IMBASAN (5 Lajur) ================= -->
     <div class="lg:col-span-5 bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
+      <!-- Header Biru Tua -->
       <div class="bg-[#1e40af] p-6 text-white text-center relative">
-        <h1 class="text-2xl font-black tracking-wider">HOSTELSCAN PRO v4.0</h1>
+        <h1 class="text-2xl font-black tracking-wider">HOSTELSCAN PRO v4.1</h1>
         <p class="text-xs text-blue-200 mt-1 tracking-widest uppercase">Terminal Imbasan & Info Pelajar</p>
         <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full text-xs">🔄</button>
       </div>
 
+      <!-- SUIS MOD PERGERAKAN -->
       <div class="p-4 bg-slate-50 border-b border-slate-200 flex gap-4">
         <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-3 rounded-xl font-black text-sm bg-[#064e3b] text-white tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-sm">
           📥 DAFTAR MASUK
@@ -36,6 +38,7 @@
       </div>
 
       <div class="p-5 space-y-4">
+        <!-- PETAK BINGKAI KAMERA -->
         <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[300px] border-4 border-[#064e3b] shadow-inner flex items-center justify-center">
           <div id="reader" class="w-full h-full"></div>
           <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
@@ -45,6 +48,7 @@
           </div>
         </div>
 
+        <!-- CARIAN MANUAL ASAL -->
         <div class="border-t border-slate-200 pt-4">
           <p class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1">✏️ Taip ID Manual</p>
           <div class="flex gap-2">
@@ -54,7 +58,7 @@
         </div>
       </div>
 
-      <!-- KOTAK DATA IMBASAN TERAKHIR (DIPERLUASKAN) -->
+      <!-- KOTAK DATA IMBASAN TERAKHIR FULL INFO -->
       <div class="p-5 border-t border-slate-200 bg-slate-50 min-h-[80px]">
         <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-lg font-black text-xs uppercase mb-2 tracking-wider"></div>
         <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
@@ -151,11 +155,10 @@
     };
 
     window.onload = function() {
-      // Set tarikh input mengikut hari ini secara automatik
       const hariIni = new Date().toISOString().split('T')[0];
       document.getElementById("pilih-tarikh").value = hariIni;
 
-      if(urlAPI && !urlAPI.includes("PASTE_URL_WEB_APP")) {
+      if(urlAPI && !urlAPI.includes("https://script.google.com/macros/s/AKfycbxFxRhPvXqKTzyHa4u6v8ewv6i9zIjiPyOIwuayB6FVWYjVwt548tXyH9_ffFcfgdD7Pw/exec")) {
         muatNaikStatistik();
       }
     };
@@ -210,7 +213,7 @@
     }
 
     function muatNaikStatistik() {
-      if(!urlAPI || urlAPI.includes("PASTE_URL_WEB_APP")) return;
+      if(!urlAPI || urlAPI.includes("https://script.google.com/macros/s/AKfycbxFxRhPvXqKTzyHa4u6v8ewv6i9zIjiPyOIwuayB6FVWYjVwt548tXyH9_ffFcfgdD7Pw/exec")) return;
       
       const tarikhPilihan = document.getElementById("pilih-tarikh").value;
       const tBody = document.getElementById("jadual-tidak-hadir");
@@ -224,7 +227,6 @@
           document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk || "0";
           document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar || "0";
           
-          // Memproses data pelajar yang tiada di asrama (X Masuk)
           globalSenaraiXMasuk = data.senaraiXMasuk || [];
           tBody.innerHTML = "";
           
@@ -301,7 +303,6 @@
       });
     }
 
-    // ================= MUAT TURUN LAPORAN EXCEL =================
     function muatTurunExcel() {
       if(globalSenaraiXMasuk.length === 0) return alert("Tiada data untuk dieksport.");
       const tarikh = document.getElementById("pilih-tarikh").value;
@@ -320,7 +321,6 @@
       XLSX.writeFile(workbook, `Pelajar_X_Masuk_Asrama_${tarikh}.xlsx`);
     }
 
-    // ================= MUAT TURUN LAPORAN PDF =================
     function muatTurunPDF() {
       if(globalSenaraiXMasuk.length === 0) return alert("Tiada data untuk dieksport.");
       const tarikh = document.getElementById("pilih-tarikh").value;
@@ -345,7 +345,7 @@
         startY: 32,
         head: [['ID', 'NAMA PELAJAR', 'TING.', 'KELAS', 'DORM']],
         body: tableData,
-        headStyles: { fillColor: [185, 28, 28], fontStyle: 'bold' }, // Warna merah gelap melambangkan tiada/keluar
+        headStyles: { fillColor: [185, 28, 28], fontStyle: 'bold' },
         styles: { font: "helvetica", fontSize: 9 },
         theme: 'striped'
       });
