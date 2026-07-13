@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.0 - GitHub Pages</title>
+  <title>HostelScan Pro v4.1 - GitHub Pages</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Pustaka Kamera QR -->
@@ -16,7 +16,7 @@
     <!-- ================= PANEL KIRI: SCANNER SYSTEM ================= -->
     <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full">
       <div class="bg-blue-600 p-5 text-white text-center relative">
-        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v4.0</h1>
+        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v4.1</h1>
         <p class="text-xs text-blue-200 mt-1">Terminal GitHub Pages & Log Pergerakan</p>
         <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
       </div>
@@ -130,8 +130,8 @@
     let modKameraSekarang = "environment";
     let statusSemasaArah = "MASUK";
 
-    // ⚠️ GANTIKAN DENGAN URL WEB APP (NEW DEPLOYMENT) ANDA DI SINI (Pastikan ada /exec di hujung)
-    const urlAPI = "https://script.google.com/macros/s/AKfycbwPqIUE0uhxK0iN73ofdtfLL2WojALgS0oVQ46cdR3Mk2LekgPWojVrviGm_umFvf2jiA/exec";
+    // ⚠️ TAMPAL URL WEB APP (DEPLOYMENT) ANDA DI SINI (Mesti ada /exec di hujung)
+    const urlAPI = "https://script.google.com/macros/s/AKfycbyV3nyivY0t2eTbHrKsgATIhQ0RfPgmr8MDLJy1cVFwkcEOlqPvnfQ0kicstJQzk9XYQw/exec";
 
     window.onload = function() {
       const hariIni = new Date();
@@ -194,15 +194,16 @@
       fetch(urlAPI + "?tarikh=" + tarikhPilihan)
       .then(res => res.json())
       .then(data => {
+        if (!data || !data.rumusan) return;
         let tTotal = 0, tMasuk = 0, tKeluar = 0;
         const tbody = document.getElementById("jadual-tingkatan");
         tbody.innerHTML = "";
         
         Object.keys(data.rumusan).sort().forEach(tingkat => {
           let row = data.rumusan[tingkat];
-          tTotal += row.total;
-          tMasuk += row.masuk;
-          tKeluar += row.keluar;
+          tTotal += row.total || 0;
+          tMasuk += row.masuk || 0;
+          tKeluar += row.keluar || 0;
 
           tbody.innerHTML += `
             <tr class="hover:bg-slate-50 transition-colors">
@@ -235,29 +236,31 @@
       })
       .then(res => res.json())
       .then(response => {
-        if (response.status === "success") {
+        if (response && response.status === "success") {
           lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800";
           lencanaStatus.innerText = "✓ REKOD " + statusSemasaArah + " BERJAYA!";
           
-          document.getElementById("data-nama").innerText = response.nama;
-          document.getElementById("data-kelas").innerText = response.kelas;
-          document.getElementById("data-dorm").innerText = response.dorm;
+          // Anti-Undefined Fallback '|| "-"'
+          document.getElementById("data-nama").innerText = response.nama || "-";
+          document.getElementById("data-kelas").innerText = response.kelas || "-";
+          document.getElementById("data-dorm").innerText = response.dorm || "-";
           
           const b = document.getElementById("data-status");
-          b.innerText = response.aksi;
-          b.className = response.aksi === "MASUK" ? "bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded font-black uppercase" : "bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded font-black uppercase";
+          b.innerText = response.aksi || statusSemasaArah;
+          b.className = (response.aksi === "MASUK" ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800") + " text-xs px-2 py-0.5 rounded font-black uppercase";
           
           document.getElementById("kotak-maklumat").classList.remove("hidden");
           muatNaikStatistik();
         } else {
           lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800";
-          lencanaStatus.innerText = "❌ " + response.message;
+          lencanaStatus.innerText = "❌ " + (response.message || "ID TIADA DALAM DATABASE");
         }
         
         document.getElementById("id-manual").value = "";
         setTimeout(() => { sedangMemproses = false; lencanaStatus.classList.add("hidden"); }, 2500);
       })
       .catch(err => {
+        console.error("Ralat penuh:", err);
         lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 bg-rose-600 text-white block";
         lencanaStatus.innerText = "❌ RALAT HUBUNGAN DATABASE";
         sedangMemproses = false;
