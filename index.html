@@ -4,51 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>HostelScan Pro v4.1</title>
-  <!-- Tailwind CSS v4 -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <!-- Pustaka Kamera QR -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-  <!-- Pustaka PDF & Excel -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-300 font-sans min-h-screen p-4 lg:p-6">
 
   <!-- CONTAINER UTAMA -->
   <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
     
-    <!-- ================= PANEL KIRI: TERMINAL IMBASAN (5 Lajur) ================= -->
+    <!-- PANEL KIRI -->
     <div class="lg:col-span-5 bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
-      <!-- Header Biru Tua -->
       <div class="bg-[#1e40af] p-6 text-white text-center relative">
         <h1 class="text-2xl font-black tracking-wider">HOSTELSCAN PRO v4.1</h1>
         <p class="text-xs text-blue-200 mt-1 tracking-widest uppercase">Terminal Imbasan & Info Pelajar</p>
         <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full text-xs">🔄</button>
       </div>
 
-      <!-- SUIS MOD PERGERAKAN -->
       <div class="p-4 bg-slate-50 border-b border-slate-200 flex gap-4">
-        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-3 rounded-xl font-black text-sm bg-[#064e3b] text-white tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-sm">
-          📥 DAFTAR MASUK
-        </button>
-        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-3 rounded-xl font-black text-sm bg-white text-slate-700 border border-slate-300 tracking-wider flex items-center justify-center gap-2 cursor-pointer">
-          📤 BALIK / OUTING
-        </button>
+        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-3 rounded-xl font-black text-sm bg-[#064e3b] text-white tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-sm">📥 DAFTAR MASUK</button>
+        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-3 rounded-xl font-black text-sm bg-white text-slate-700 border border-slate-300 tracking-wider flex items-center justify-center gap-2 cursor-pointer">📤 BALIK / OUTING</button>
       </div>
 
       <div class="p-5 space-y-4">
-        <!-- PETAK BINGKAI KAMERA -->
         <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[300px] border-4 border-[#064e3b] shadow-inner flex items-center justify-center">
           <div id="reader" class="w-full h-full"></div>
           <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
-            <button onclick="mulaKameraGitHub()" class="bg-[#064e3b] hover:bg-emerald-800 text-white font-black py-3 px-6 rounded-xl shadow-md text-sm tracking-wider uppercase cursor-pointer flex items-center gap-2">
-              📷 AKTIFKAN KAMERA LIVE
-            </button>
+            <button onclick="mulaKameraGitHub()" class="bg-[#064e3b] hover:bg-emerald-800 text-white font-black py-3 px-6 rounded-xl shadow-md text-sm tracking-wider uppercase cursor-pointer flex items-center gap-2">📷 AKTIFKAN KAMERA LIVE</button>
           </div>
         </div>
 
-        <!-- CARIAN MANUAL ASAL -->
         <div class="border-t border-slate-200 pt-4">
           <p class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1">✏️ Taip ID Manual</p>
           <div class="flex gap-2">
@@ -58,300 +41,94 @@
         </div>
       </div>
 
-      <!-- KOTAK DATA IMBASAN TERAKHIR FULL INFO -->
       <div class="p-5 border-t border-slate-200 bg-slate-50 min-h-[80px]">
         <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-lg font-black text-xs uppercase mb-2 tracking-wider"></div>
         <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div class="grid grid-cols-3 text-sm"><span class="font-bold text-gray-400">Nama:</span><span class="col-span-2 font-black text-slate-800 uppercase" id="data-nama">-</span></div>
-          <div class="grid grid-cols-3 text-sm"><span class="font-bold text-gray-400">Tingkatan:</span><span class="col-span-2 font-black text-slate-700 uppercase" id="data-tingkatan">-</span></div>
-          <div class="grid grid-cols-3 text-sm"><span class="font-bold text-gray-400">Kelas:</span><span class="col-span-2 font-black text-slate-700 uppercase" id="data-kelas">-</span></div>
           <div class="grid grid-cols-3 text-sm"><span class="font-bold text-gray-400">Dorm:</span><span class="col-span-2 font-black text-blue-700 uppercase" id="data-dorm">-</span></div>
           <div class="grid grid-cols-3 text-sm"><span class="font-bold text-gray-400">Status:</span><span class="col-span-2"><span id="data-status" class="text-xs px-2 py-0.5 rounded font-black uppercase">-</span></span></div>
         </div>
       </div>
     </div>
 
-    <!-- ================= PANEL KANAN: DASHBOARD STATISTIK & LAPORAN (7 Lajur) ================= -->
+    <!-- PANEL KANAN -->
     <div class="lg:col-span-7 space-y-6">
-      
-      <!-- KAD STATISTIK & PILIHAN TARIKH -->
       <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
-        <div class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center border-b border-slate-200 pb-3 mb-4">
-          <div>
-            <h2 class="font-black text-slate-800 text-base tracking-wider uppercase">📊 Analisa Pergerakan</h2>
-            <div class="flex items-center gap-2 mt-2">
-              <label class="text-xs font-bold text-slate-500 uppercase">Tarikh Semakan:</label>
-              <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="text-xs font-bold bg-slate-100 border border-slate-300 p-1.5 rounded-lg text-slate-700 focus:outline-none focus:border-blue-500">
-            </div>
-          </div>
-          <button onclick="muatNaikStatistik()" class="text-xs bg-blue-50 text-blue-700 px-4 py-2 rounded-lg border-2 border-blue-200 hover:bg-blue-100 font-bold tracking-wide uppercase cursor-pointer shadow-sm w-full sm:w-auto">🔄 Segarkan Data</button>
+        <div class="flex items-center gap-2 mb-4">
+            <label class="text-xs font-bold text-slate-500 uppercase">Tarikh Semakan:</label>
+            <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="text-xs font-bold bg-slate-100 border border-slate-300 p-1.5 rounded-lg text-slate-700">
         </div>
-        
         <div class="grid grid-cols-3 gap-4 text-center">
-          <div class="bg-slate-100 p-4 rounded-xl border border-slate-300 shadow-inner">
-            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Jumlah Pelajar</p>
-            <p id="stat-total" class="text-3xl font-black text-slate-800 mt-1">0</p>
-          </div>
-          <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 shadow-inner">
-            <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider">DI ASRAMA</p>
-            <p id="stat-masuk" class="text-3xl font-black text-emerald-700 mt-1">0</p>
-          </div>
-          <div class="bg-red-50 p-4 rounded-xl border border-red-200 shadow-inner">
-            <p class="text-xs font-bold text-red-600 uppercase tracking-wider">TIADA / KELUAR</p>
-            <p id="stat-keluar" class="text-3xl font-black text-red-700 mt-1">0</p>
-          </div>
+          <div class="bg-slate-100 p-4 rounded-xl border border-slate-300"><p class="text-xs font-bold text-slate-500">JUMLAH</p><p id="stat-total" class="text-2xl font-black">0</p></div>
+          <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200"><p class="text-xs font-bold text-emerald-600">MASUK</p><p id="stat-masuk" class="text-2xl font-black">0</p></div>
+          <div class="bg-red-50 p-4 rounded-xl border border-red-200"><p class="text-xs font-bold text-red-600">KELUAR</p><p id="stat-keluar" class="text-2xl font-black">0</p></div>
         </div>
       </div>
 
-      <!-- KAD JADUAL PELAJAR YANG BELUM MASUK (X MASUK) -->
       <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
-        <div class="flex flex-col sm:flex-row gap-2 justify-between items-start sm:items-center border-b border-slate-200 pb-3 mb-4">
-          <h2 class="font-black text-slate-800 text-base tracking-wider uppercase text-red-700">🚨 SENARAI PELAJAR TIADA DI ASRAMA</h2>
-          <div class="flex gap-2 w-full sm:w-auto">
-            <button onclick="muatTurunExcel()" class="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-2 rounded-lg shadow-sm cursor-pointer uppercase tracking-wider">📥 EXCEL</button>
-            <button onclick="muatTurunPDF()" class="flex-1 sm:flex-initial bg-red-600 hover:bg-red-700 text-white font-bold text-xs px-3 py-2 rounded-lg shadow-sm cursor-pointer uppercase tracking-wider">📥 PDF</button>
-          </div>
-        </div>
-        
+        <h2 class="font-black text-red-700 mb-4 uppercase">🚨 Pelajar Tiada di Asrama</h2>
         <div class="overflow-x-auto max-h-[350px]">
-          <table class="w-full text-left border-collapse" id="jadual-export">
-            <thead>
-              <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-black tracking-wider border-b border-slate-200 sticky top-0">
-                <th class="p-3">ID</th>
-                <th class="p-3">Nama Pelajar</th>
-                <th class="p-3 text-center">Ting.</th>
-                <th class="p-3 text-center">Kelas</th>
-                <th class="p-3 text-center">Dorm</th>
-              </tr>
-            </thead>
-            <tbody id="jadual-tidak-hadir" class="text-xs divide-y divide-slate-200 font-bold text-slate-700">
-              <tr><td colspan="5" class="p-4 text-center text-slate-400 italic">Sila pilih tarikh/segarkan data...</td></tr>
-            </tbody>
+          <table class="w-full text-left" id="jadual-export">
+            <tbody id="jadual-tidak-hadir"></tbody>
           </table>
         </div>
       </div>
-
     </div>
   </div>
 
+  <!-- PUSTAKA (DIMUATKAN DI BAWAH UNTUK KESTABILAN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
   <script>
-    let html5QrCode;
-    let sedangMemproses = false;
-    let modKameraSekarang = "environment";
-    let statusSemasaArah = "MASUK";
-    let globalSenaraiXMasuk = [];
+    const urlAPI = "https://script.google.com/macros/s/AKfycby-h9jElAwi276F9X9XNvjy09SKdRa-4Z4dJixAvdzS5odyEGvxEPFCBT2oXNpxYJJBdw/exec";
+    let html5QrCode, sedangMemproses = false, statusSemasaArah = "MASUK", globalSenaraiXMasuk = [];
 
-    // =========================================================
-    // ⚠️ GANTIKAN DENGAN URL WEB APP APPS SCRIPT ANDA DI BAWAH INI:
-    // =========================================================
-    const urlAPI = "https://script.google.com/macros/s/AKfycbxzXSBmawbzPIrnwBQeXItCqb-qS9jqKXuHUFAx0f3rylDxMxHJ9r5SzEumFjnriJobRw/exec";
-
-    const configKamera = { 
-      fps: 24, 
-      qrbox: function(viewfinderWidth, viewfinderHeight) {
-        let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-        return { width: Math.floor(minEdge * 0.75), height: Math.floor(minEdge * 0.75) };
-      }
-    };
-
-    window.onload = function() {
-      const hariIni = new Date().toISOString().split('T')[0];
-      document.getElementById("pilih-tarikh").value = hariIni;
-
-      if(urlAPI && !urlAPI.includes("https://script.google.com/macros/s/AKfycbxzXSBmawbzPIrnwBQeXItCqb-qS9jqKXuHUFAx0f3rylDxMxHJ9r5SzEumFjnriJobRw/exec")) {
-        muatNaikStatistik();
-      }
+    window.onload = () => {
+      document.getElementById("pilih-tarikh").value = new Date().toISOString().split('T')[0];
+      muatNaikStatistik();
     };
 
     function setModPergerakan(arah) {
       statusSemasaArah = arah;
-      const tabMasuk = document.getElementById("tab-masuk");
-      const tabKeluar = document.getElementById("tab-keluar");
-      const bingkaiKamera = document.getElementById("bingkai-kamera");
-
-      if (arah === "MASUK") {
-        tabMasuk.className = "w-full py-3 rounded-xl font-black text-sm bg-[#064e3b] text-white tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-sm";
-        tabKeluar.className = "w-full py-3 rounded-xl font-black text-sm bg-white text-slate-700 border border-slate-300 tracking-wider flex items-center justify-center gap-2 cursor-pointer";
-        bingkaiKamera.style.borderColor = "#064e3b";
-      } else {
-        tabKeluar.className = "w-full py-3 rounded-xl font-black text-sm bg-red-700 text-white tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-sm";
-        tabMasuk.className = "w-full py-3 rounded-xl font-black text-sm bg-white text-slate-700 border border-slate-300 tracking-wider flex items-center justify-center gap-2 cursor-pointer";
-        bingkaiKamera.style.borderColor = "#b91c1c";
-      }
+      document.getElementById("bingkai-kamera").style.borderColor = (arah === "MASUK") ? "#064e3b" : "#b91c1c";
     }
 
     function mulaKameraGitHub() {
       document.getElementById('overlay-mula').style.display = 'none';
       html5QrCode = new Html5Qrcode("reader");
-      jalankanKamera(modKameraSekarang);
-    }
-
-    function jalankanKamera(facingModeTarget) {
-      html5QrCode.start(
-        { facingMode: facingModeTarget }, 
-        configKamera,
-        (decodedText) => { if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); },
-        (errorMessage) => {}
-      ).then(() => {
-        document.getElementById("btn-tukar-kamera").classList.remove("hidden");
-      }).catch((err) => { alert("Gagal Akses Kamera."); });
-    }
-
-    function tukarKamera() {
-      if (!html5QrCode) return;
-      modKameraSekarang = (modKameraSekarang === "environment") ? "user" : "environment";
-      html5QrCode.stop().then(() => { jalankanKamera(modKameraSekarang); });
-    }
-
-    function hantarIDManual() {
-      const idInput = document.getElementById("id-manual").value.trim();
-      if (idInput) {
-        prosesPenghantaranData(idInput);
-      } else {
-        alert("Sila taip ID pelajar terlebih dahulu.");
-      }
+      html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => prosesPenghantaranData(text.trim()));
     }
 
     function muatNaikStatistik() {
-      if(!urlAPI || urlAPI.includes("https://script.google.com/macros/s/AKfycbxzXSBmawbzPIrnwBQeXItCqb-qS9jqKXuHUFAx0f3rylDxMxHJ9r5SzEumFjnriJobRw/exec")) return;
-      
-      const tarikhPilihan = document.getElementById("pilih-tarikh").value;
-      const tBody = document.getElementById("jadual-tidak-hadir");
-      tBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 italic">Memuat data terkini...</td></tr>`;
-
-      fetch(`${urlAPI}?tarikh=${tarikhPilihan}`)
+      fetch(`${urlAPI}?tarikh=${document.getElementById("pilih-tarikh").value}`)
       .then(res => res.json())
       .then(data => {
-        if(data.status === "SUCCESS") {
-          document.getElementById("stat-total").innerText = data.keseluruhan.total || "0";
-          document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk || "0";
-          document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar || "0";
-          
-          globalSenaraiXMasuk = data.senaraiXMasuk || [];
-          tBody.innerHTML = "";
-          
-          if(globalSenaraiXMasuk.length === 0) {
-            tBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-emerald-600 font-bold">Semua pelajar telah berada di dalam asrama.</td></tr>`;
-          } else {
-            globalSenaraiXMasuk.forEach(pelajar => {
-              tBody.innerHTML += `
-                <tr class="hover:bg-red-50/50 border-b border-slate-200">
-                  <td class="p-3 font-mono text-slate-500">${pelajar.id}</td>
-                  <td class="p-3 font-black text-slate-800 uppercase">${pelajar.nama}</td>
-                  <td class="p-3 text-center uppercase">${pelajar.tingkatan}</td>
-                  <td class="p-3 text-center uppercase">${pelajar.kelas}</td>
-                  <td class="p-3 text-center uppercase text-blue-700">${pelajar.dorm}</td>
-                </tr>
-              `;
-            });
-          }
-        }
-      }).catch(err => {
-        console.error("Gagal muat statistik:", err);
-        tBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-red-600">Gagal menyambung ke database.</td></tr>`;
+        document.getElementById("stat-total").innerText = data.keseluruhan.total;
+        document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk;
+        document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar;
+        globalSenaraiXMasuk = data.senaraiXMasuk;
+        let html = "";
+        globalSenaraiXMasuk.forEach(p => html += `<tr><td class="p-2">${p.nama}</td><td class="p-2 text-blue-700">${p.dorm}</td></tr>`);
+        document.getElementById("jadual-tidak-hadir").innerHTML = html;
       });
     }
 
-    function prosesPenghantaranData(idDitemui) {
+    function prosesPenghantaranData(id) {
       if (sedangMemproses) return;
-      sedangMemproses = true; 
-
-      const lencanaStatus = document.getElementById("notifikasi-badge");
-      lencanaStatus.className = "text-center py-2 px-4 rounded-lg font-black text-xs uppercase mb-2 tracking-wider bg-amber-100 text-amber-800 block";
-      lencanaStatus.innerText = "Memproses (" + statusSemasaArah + ") ID: " + idDitemui;
-
-      const dataHantar = new URLSearchParams();
-      dataHantar.append("idPelajar", idDitemui);
-      dataHantar.append("arahPergerakan", statusSemasaArah);
-
-      fetch(urlAPI, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: dataHantar.toString()
-      })
+      sedangMemproses = true;
+      fetch(urlAPI, { method: "POST", body: new URLSearchParams({idPelajar: id, arahPergerakan: statusSemasaArah}) })
       .then(res => res.json())
       .then(data => {
-        if (data.status === "SUCCESS") {
-          lencanaStatus.className = "text-center py-2 px-4 rounded-lg font-black text-xs uppercase mb-2 tracking-wider block bg-emerald-100 text-emerald-800";
-          lencanaStatus.innerText = "✓ REKOD " + statusSemasaArah + " BERJAYA!";
-          
-          document.getElementById("data-nama").innerText = data.nama;
-          document.getElementById("data-tingkatan").innerText = data.tingkatan || "-";
-          document.getElementById("data-kelas").innerText = data.kelas || "-";
-          document.getElementById("data-dorm").innerText = data.dorm;
-          
-          const b = document.getElementById("data-status");
-          b.innerText = data.statusHadir || statusSemasaArah;
-          b.className = statusSemasaArah === "MASUK" ? "bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded font-black uppercase" : "bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded font-black uppercase";
-          
-          document.getElementById("kotak-maklumat").classList.remove("hidden");
-          muatNaikStatistik();
-        } else {
-          lencanaStatus.className = "text-center py-2 px-4 rounded-lg font-black text-xs uppercase mb-2 tracking-wider block bg-rose-100 text-rose-800";
-          lencanaStatus.innerText = "❌ ID TIADA DALAM DATABASE";
-        }
-        
-        document.getElementById("id-manual").value = "";
-        setTimeout(() => { sedangMemproses = false; lencanaStatus.classList.add("hidden"); }, 2500);
-      })
-      .catch((error) => {
-        lencanaStatus.className = "text-center py-2 px-4 rounded-lg font-black text-xs uppercase mb-2 tracking-wider bg-rose-600 text-white block";
-        lencanaStatus.innerText = "❌ RALAT HUBUNGAN DATABASE";
+        alert("Status: " + data.statusHadir);
         sedangMemproses = false;
-        setTimeout(() => { lencanaStatus.classList.add("hidden"); }, 3000);
+        muatNaikStatistik();
       });
     }
 
-    function muatTurunExcel() {
-      if(globalSenaraiXMasuk.length === 0) return alert("Tiada data untuk dieksport.");
-      const tarikh = document.getElementById("pilih-tarikh").value;
-      
-      const rows = globalSenaraiXMasuk.map(p => ({
-        "ID PELAJAR": p.id,
-        "NAMA PELAJAR": p.nama.toUpperCase(),
-        "TINGKATAN": p.tingkatan,
-        "KELAS": p.kelas.toUpperCase(),
-        "DORM": p.dorm.toUpperCase()
-      }));
-
-      const worksheet = XLSX.utils.json_to_sheet(rows);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Belum Masuk");
-      XLSX.writeFile(workbook, `Pelajar_X_Masuk_Asrama_${tarikh}.xlsx`);
-    }
-
-    function muatTurunPDF() {
-      if(globalSenaraiXMasuk.length === 0) return alert("Tiada data untuk dieksport.");
-      const tarikh = document.getElementById("pilih-tarikh").value;
-      
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.text("LAPORAN PELAJAR TIADA DI ASRAMA (BELUM MASUK)", 14, 15);
-      
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.text(`Tarikh Semakan: ${tarikh}`, 14, 22);
-      doc.text(`Jumlah Pelajar: ${globalSenaraiXMasuk.length} orang`, 14, 27);
-
-      const tableData = globalSenaraiXMasuk.map(p => [
-        p.id, p.nama.toUpperCase(), p.tingkatan, p.kelas.toUpperCase(), p.dorm.toUpperCase()
-      ]);
-
-      doc.autoTable({
-        startY: 32,
-        head: [['ID', 'NAMA PELAJAR', 'TING.', 'KELAS', 'DORM']],
-        body: tableData,
-        headStyles: { fillColor: [185, 28, 28], fontStyle: 'bold' },
-        styles: { font: "helvetica", fontSize: 9 },
-        theme: 'striped'
-      });
-
-      doc.save(`Pelajar_X_Masuk_Asrama_${tarikh}.pdf`);
-    }
+    function hantarIDManual() { prosesPenghantaranData(document.getElementById("id-manual").value); }
   </script>
 </body>
 </html>
