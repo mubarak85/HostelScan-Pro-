@@ -3,121 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v3.0 - Dashboard Warden</title>
-  <!-- Tailwind CSS v4 -->
+  <title>HostelScan Pro - Sistem Log Dua Hala</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <!-- Pustaka Kamera QR -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 </head>
-<body class="bg-slate-100 font-sans min-h-screen p-4 lg:p-6 text-slate-800">
+<body class="bg-slate-100 font-sans min-h-screen flex flex-col items-center justify-center p-4">
 
-  <!-- CONTAINER UTAMA DWI-PANEL -->
-  <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-    
-    <!-- ================= PANEL KIRI: SCANNER SYSTEM (5 Lajur) ================= -->
-    <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full border border-slate-200">
-      <!-- Header -->
-      <div class="bg-blue-600 p-5 text-white text-center relative shadow-inner">
-        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.0</h1>
-        <p class="text-xs text-blue-200 mt-1">Terminal Imbasan & Log Pergerakan</p>
-        <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30 cursor-pointer">🔄</button>
-      </div>
-
-      <!-- SUIS MOD PERGERAKAN -->
-      <div class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
-        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-emerald-600 text-white shadow-md text-center">
-          📥 DAFTAR MASUK
-        </button>
-        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-white text-slate-600 border border-slate-200 text-center">
-          📤 BALIK / OUTING
-        </button>
-      </div>
-
-      <div class="p-5 space-y-4">
-        <!-- PETAK KAMERA -->
-        <div class="text-center space-y-2">
-          <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 shadow-sm flex items-center justify-center">
-            <div id="reader" class="w-full h-full"></div>
-            <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
-              <button onclick="mulaKameraGitHub()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md text-sm uppercase tracking-wider cursor-pointer transition-colors">
-                📷 Aktifkan Kamera Live
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- CARIAN MANUAL -->
-        <details class="group border-t border-slate-100 pt-2">
-          <summary class="list-none flex justify-between items-center font-semibold text-xs text-slate-400 cursor-pointer py-1 select-none">
-            <span>✏️ Taip ID Manual</span>
-            <span class="transition-transform group-open:rotate-180 text-[10px]">▼</span>
-          </summary>
-          <div class="flex gap-2 mt-2">
-            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-sm uppercase font-mono focus:outline-blue-500">
-            <button onclick="hantarIDManual()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-1.5 rounded-lg text-sm cursor-pointer transition-colors">Semak</button>
-          </div>
-        </details>
-      </div>
-
-      <!-- KOTAK DATA IMBAZAN TERAKHIR -->
-      <div class="p-5 border-t border-slate-100 bg-slate-50/50 min-h-[120px]">
-        <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-xl font-bold text-sm mb-3"></div>
-        <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm transition-all">
-          <div class="grid grid-cols-3 text-sm border-b border-slate-100 pb-1"><span class="text-slate-400">Nama/ID</span><span class="col-span-2 font-bold text-slate-800" id="data-nama">-</span></div>
-          <div class="grid grid-cols-3 text-sm border-b border-slate-100 pb-1"><span class="text-slate-400">Dorm</span><span class="col-span-2 font-bold text-blue-600" id="data-dorm">-</span></div>
-          <div class="grid grid-cols-3 text-sm pt-1"><span class="text-slate-400">Status</span><span class="col-span-2"><span id="data-status" class="text-xs px-2.5 py-0.5 rounded-md font-black uppercase">-</span></span></div>
-        </div>
-      </div>
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden my-auto">
+    <!-- Pengepala Utama -->
+    <div class="bg-blue-600 p-5 text-white text-center relative">
+      <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v2.0</h1>
+      <p class="text-xs text-blue-200 mt-1">Sistem Rekod Keluar & Masuk Asrama</p>
+      <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2.5 rounded-full transition-all cursor-pointer text-xs border border-white/30 font-semibold shadow-sm">
+        🔄
+      </button>
     </div>
 
-    <!-- ================= PANEL KANAN: SIDEBAR REKOD & ANALISA (7 Lajur) ================= -->
-    <div class="lg:col-span-7 space-y-6 w-full">
-      
-      <!-- KAD 1: ANALISA KESELURUHAN -->
-      <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-200">
-        <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-          <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">📊 Analisa Keseluruhan Pelajar</h2>
-          <button onclick="muatNaikStatistik()" class="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg border border-blue-200 hover:bg-blue-100 font-semibold cursor-pointer transition-colors">🔄 Segarkan Data</button>
-        </div>
-        
-        <div class="grid grid-cols-3 gap-4 text-center">
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Jumlah Besar</p>
-            <p id="stat-total" class="text-2xl font-black text-slate-800 mt-1">0</p>
-          </div>
-          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
-            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Ada Di Asrama</p>
-            <p id="stat-masuk" class="text-2xl font-black text-emerald-700 mt-1">0</p>
-          </div>
-          <div class="bg-red-50 p-3 rounded-xl border border-red-200">
-            <p class="text-[10px] font-bold text-red-600 uppercase tracking-wider">Keluar / Outing</p>
-            <p id="stat-keluar" class="text-2xl font-black text-red-700 mt-1">0</p>
+    <!-- 🎛️ SUIS MOD PERGERAKAN (MASUK / KELUAR) -->
+    <div class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
+      <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-emerald-600 text-white shadow-md text-center">
+        📥 DAFTAR MASUK
+      </button>
+      <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-white text-slate-600 border border-slate-200 text-center">
+        📤 BALIK / OUTING
+      </button>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <!-- PETAK VIEWPORT KAMERA SCANNER -->
+      <div class="text-center space-y-2">
+        <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[320px] border-2 border-emerald-500 shadow-md flex items-center justify-center transition-all duration-300">
+          <div id="reader" class="w-full h-full"></div>
+          <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
+            <p class="text-white text-sm font-semibold mb-4">Klik butang di bawah untuk mengaktifkan kamera peranti.</p>
+            <button onclick="mulaKameraGitHub()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transition-all cursor-pointer text-sm uppercase tracking-wider">
+              📷 Aktifkan Kamera Live
+            </button>
           </div>
         </div>
+        <p class="text-xs text-gray-500 font-medium">⚡ Halakan Kod QR pelajar terus ke dalam petak kamera</p>
       </div>
 
-      <!-- KAD 2: PERINCIAN MENGIKUT TINGKATAN -->
-      <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-200">
-        <h2 class="font-bold text-slate-800 text-base border-b border-slate-100 pb-3 mb-4 flex items-center gap-2">🏫 Ringkasan Mengikut Tingkatan</h2>
-        <div class="overflow-x-auto rounded-xl border border-slate-100 shadow-sm">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-bold">
-                <th class="p-3">Tingkatan</th>
-                <th class="p-3 text-center">Jumlah</th>
-                <th class="p-3 text-center text-emerald-600 bg-emerald-50/20">Masuk (Di Dalam)</th>
-                <th class="p-3 text-center text-red-600 bg-red-50/20">Keluar (Di Luar)</th>
-              </tr>
-            </thead>
-            <tbody id="jadual-tingkatan" class="text-sm divide-y divide-slate-100">
-              <tr>
-                <td colspan="4" class="p-6 text-center text-slate-400 italic">Memuatkan data statistik dari sistem pelayan...</td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- CARIAN MANUAL KECEMASAN -->
+      <details class="group border-t pt-2">
+        <summary class="list-none flex justify-between items-center font-semibold text-xs text-gray-400 cursor-pointer py-1 select-none">
+          <span>✏️ Taip ID Manual (Jika Perlu)</span>
+          <span class="transition group-open:rotate-180 text-[10px]">▼</span>
+        </summary>
+        <div class="flex gap-2 mt-2">
+          <input type="text" id="id-manual" placeholder="Contoh: ID123" class="w-full px-3 py-1.5 border rounded-lg text-sm uppercase font-mono focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <button onclick="hantarIDManual()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold px-4 py-1.5 rounded-lg text-sm transition-all cursor-pointer">Semak</button>
         </div>
-      </div>
+      </details>
+    </div>
 
+    <!-- PENGESAHAN STATUS & DATA PELAJAR -->
+    <div class="p-5 border-t border-slate-100 bg-slate-50/50 min-h-[110px]">
+      <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3"></div>
+
+      <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <h3 class="text-center font-bold text-slate-500 uppercase tracking-wider text-[11px] border-b pb-1 mb-2">Data Pergerakan Pelajar</h3>
+        <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">No. ID</span><span class="col-span-2 font-mono font-bold text-slate-800" id="data-id">-</span></div>
+        <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Nama</span><span class="col-span-2 font-bold text-slate-800" id="data-nama">-</span></div>
+        <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Tingkatan</span><span class="col-span-2 font-bold text-slate-700" id="data-tingkatan">-</span></div>
+        <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Kelas</span><span class="col-span-2 font-bold text-slate-700" id="data-kelas">-</span></div>
+        <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Dorm</span><span class="col-span-2 font-bold text-blue-600" id="data-dorm">-</span></div>
+        <div class="grid grid-cols-3 text-sm pt-1 mt-1 border-t items-center"><span class="text-gray-400">Tindakan</span><span class="col-span-2"><span id="data-status" class="text-xs px-2.5 py-0.5 rounded font-black tracking-wider uppercase inline-block">-</span></span></div>
+        <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Masa Rekod</span><span class="col-span-2 font-mono text-xs font-bold text-slate-500" id="data-masa">-</span></div>
+      </div>
     </div>
   </div>
 
@@ -125,25 +78,18 @@
     let html5QrCode;
     let sedangMemproses = false;
     let modKameraSekarang = "environment";
-    let statusSemasaArah = "MASUK";
-
-    // ⚠️ GANTIKAN DENGAN URL WEB APP ACTIVE ANDA SELEPAS NEW DEPLOYMENT
-    const urlAPI = "https://script.google.com/macros/s/AKfycbwIjWHTyuPb4nBIWkDo6dFsgLIW4W659arQQwq8l2sslL6j_TJohz_hbe08esWoOh03SQ/exec";
+    let statusSemasaArah = "MASUK"; // Nilai lalai kekal MASUK
 
     const configKamera = { 
       fps: 24, 
       qrbox: function(viewfinderWidth, viewfinderHeight) {
         let minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-        return { width: Math.floor(minEdge * 0.75), height: Math.floor(minEdge * 0.75) };
+        let edgeSize = Math.floor(minEdge * 0.75); 
+        return { width: edgeSize, height: edgeSize };
       }
     };
 
-    window.onload = function() {
-      if(urlAPI !== "https://script.google.com/macros/s/AKfycbwIjWHTyuPb4nBIWkDo6dFsgLIW4W659arQQwq8l2sslL6j_TJohz_hbe08esWoOh03SQ/exec") {
-        muatNaikStatistik();
-      }
-    };
-
+    // FUNGSI UNTUK MENUKAR TAMPILAN SUIS TAB (MASUK / KELUAR)
     function setModPergerakan(arah) {
       statusSemasaArah = arah;
       const tabMasuk = document.getElementById("tab-masuk");
@@ -151,13 +97,13 @@
       const bingkaiKamera = document.getElementById("bingkai-kamera");
 
       if (arah === "MASUK") {
-        tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer transition-all";
-        tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer transition-all";
-        bingkaiKamera.style.borderColor = "#10b981";
+        tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-emerald-600 text-white shadow-md text-center";
+        tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-white text-slate-600 border border-slate-200 text-center";
+        bingkaiKamera.className = bingkaiKamera.className.replace(/border-red-500/g, 'border-emerald-500');
       } else {
-        tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white shadow-md text-center cursor-pointer transition-all";
-        tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer transition-all";
-        bingkaiKamera.style.borderColor = "#ef4444";
+        tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-red-600 text-white shadow-md text-center";
+        tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-white text-slate-600 border border-slate-200 text-center";
+        bingkaiKamera.className = bingkaiKamera.className.replace(/border-emerald-500/g, 'border-red-500');
       }
     }
 
@@ -171,60 +117,38 @@
       html5QrCode.start(
         { facingMode: facingModeTarget }, 
         configKamera,
-        (decodedText) => { if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); },
+        (decodedText) => {
+          if (!sedangMemproses) {
+            try {
+              let context = new (window.AudioContext || window.webkitAudioContext)();
+              let osc = context.createOscillator();
+              osc.connect(context.destination);
+              osc.start();
+              setTimeout(() => osc.stop(), 100);
+            } catch(e) {}
+            prosesPenghantaranData(decodedText.trim());
+          }
+        },
         (errorMessage) => {}
       ).then(() => {
         document.getElementById("btn-tukar-kamera").classList.remove("hidden");
-      }).catch((err) => { alert("Akses kamera tidak dibenarkan atau gagal."); });
+      }).catch((err) => {
+        document.getElementById('overlay-mula').style.display = 'flex';
+        alert("Gagal Akses Kamera.");
+      });
     }
 
     function tukarKamera() {
       if (!html5QrCode) return;
       modKameraSekarang = (modKameraSekarang === "environment") ? "user" : "environment";
-      html5QrCode.stop().then(() => { jalankanKamera(modKameraSekarang); });
+      html5QrCode.stop().then(() => {
+        jalankanKamera(modKameraSekarang);
+      }).catch(err => console.error(err));
     }
 
     function hantarIDManual() {
       const idInput = document.getElementById("id-manual").value.trim();
-      if (idInput) {
-        prosesPenghantaranData(idInput);
-      } else {
-        alert("Sila masukkan ID Pelajar terlebih dahulu.");
-      }
-    }
-
-    function muatNaikStatistik() {
-      fetch(urlAPI + "?tarikh=" + new Date().toISOString().split('T')[0])
-      .then(res => res.json())
-      .then(data => {
-        if(data.status === "SUCCESS") {
-          document.getElementById("stat-total").innerText = data.keseluruhan.total || 0;
-          document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk || 0;
-          document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar || 0;
-          
-          const tbody = document.getElementById("jadual-tingkatan");
-          tbody.innerHTML = "";
-          
-          if (!data.tingkatan || Object.keys(data.tingkatan).length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400 italic">Tiada data kelas dijumpai.</td></tr>`;
-            return;
-          }
-
-          Object.keys(data.tingkatan).sort().forEach(tingkat => {
-            let row = data.tingkatan[tingkat];
-            tbody.innerHTML += `
-              <tr class="hover:bg-slate-50 transition-colors">
-                <td class="p-3 font-bold text-slate-700">Tingkatan ${tingkat}</td>
-                <td class="p-3 text-center font-medium">${row.total}</td>
-                <td class="p-3 text-center font-bold text-emerald-600 bg-emerald-50/20">${row.masuk}</td>
-                <td class="p-3 text-center font-bold text-red-600 bg-red-50/20">${row.keluar}</td>
-              </tr>
-            `;
-          });
-        }
-      }).catch(err => {
-        console.error("Gagal memuatkan statistik terkini:", err);
-      });
+      if (idInput) prosesPenghantaranData(idInput);
     }
 
     function prosesPenghantaranData(idDitemui) {
@@ -232,50 +156,69 @@
       sedangMemproses = true; 
 
       const lencanaStatus = document.getElementById("notifikasi-badge");
-      lencanaStatus.className = "text-center py-2 px-4 rounded-xl font-bold text-sm mb-3 bg-amber-100 text-amber-800 block shadow-sm border border-amber-200";
-      lencanaStatus.innerText = "Mengirim (" + statusSemasaArah + ") ID: " + idDitemui + "...";
+      lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 bg-amber-100 text-amber-800 block animate-pulse";
+      lencanaStatus.innerText = "Memproses (" + statusSemasaArah + ") ID: " + idDitemui + "...";
 
-      // Mod 'no-cors' dengan x-www-form-urlencoded untuk tembus firewall sekatan Google Apps Script
+      // ⚠️ TAMPAL URL WEB APP ANDA DI SINI (BARIS 131)
+      const urlAPI = "https://script.google.com/macros/s/AKfycbxgUJ1cfPUwdnhxWN4LxXJT0qs6pTl_JMUxkRicOVk69rEbxzWN_M2KcdCTzJ3hPRyNUw/exec";
+
       fetch(urlAPI, {
         method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ idPelajar: idDitemui, arahPergerakan: statusSemasaArah })
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ idPelajar: idDitemui, arahPergerakan: statusSemasaArah }) // Hantar status pergerakan semasa
       })
-      .then(() => {
-        // Paparan UI dikemas kini terus secara proaktif demi kelancaran tugas warden
-        lencanaStatus.className = "text-center py-2 px-4 rounded-xl font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm";
-        lencanaStatus.innerText = "✓ REKOD " + statusSemasaArah + " DISERAHKAN!";
-        
-        document.getElementById("data-nama").innerText = idDitemui;
-        document.getElementById("data-dorm").innerText = "Disemak";
-        
-        const badgeHadir = document.getElementById("data-status");
-        badgeHadir.innerText = statusSemasaArah;
-        badgeHadir.className = (statusSemasaArah === "MASUK") 
-          ? "bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-md font-black uppercase tracking-wider" 
-          : "bg-red-100 text-red-800 text-xs px-2.5 py-1 rounded-md font-black uppercase tracking-wider";
-        
-        document.getElementById("kotak-maklumat").classList.remove("hidden");
-        
-        // Kemas kini data analitik peratusan di panel sebelah kanan secara langsung
-        muatNaikStatistik();
+      .then(response => {
+        if (!response.ok) throw new Error('Ralat Pelayan');
+        return response.json();
+      })
+      .then(data => {
+        if (data.status === "LICENSE_ERROR") {
+          lencanaStatus.className = "text-center py-3 px-4 rounded-xl font-bold text-sm mb-3 block bg-rose-600 text-white animate-bounce shadow-lg";
+          lencanaStatus.innerText = data.message;
+          document.getElementById("kotak-maklumat").classList.add("hidden");
+          sedangMemproses = false;
+          return;
+        }
+
+        if (data.status === "SUCCESS") {
+          lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800";
+          lencanaStatus.innerText = "✓ REKOD " + statusSemasaArah + " BERJAYA!";
+          
+          document.getElementById("data-id").innerText = idDitemui;
+          document.getElementById("data-nama").innerText = data.nama;
+          document.getElementById("data-tingkatan").innerText = data.tingkatan;
+          document.getElementById("data-kelas").innerText = data.kelas;
+          document.getElementById("data-dorm").innerText = data.dorm;
+          
+          // Tukar warna lencana paparan ikut mod pergerakan
+          const badgeStatus = document.getElementById("data-status");
+          badgeStatus.innerText = data.statusHadir;
+          if (data.statusHadir === "MASUK") {
+            badgeStatus.className = "bg-emerald-100 text-emerald-800 text-xs px-2.5 py-0.5 rounded font-black tracking-wider uppercase inline-block";
+          } else {
+            badgeStatus.className = "bg-red-100 text-red-800 text-xs px-2.5 py-0.5 rounded font-black tracking-wider uppercase inline-block";
+          }
+
+          document.getElementById("data-masa").innerText = new Date().toLocaleTimeString('ms-MY', {hour: '2-digit', minute:'2-digit'});
+          document.getElementById("kotak-maklumat").classList.remove("hidden");
+        } else {
+          lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800";
+          lencanaStatus.innerText = "❌ ID TIADA DALAM DATABASE";
+          document.getElementById("kotak-maklumat").classList.add("hidden");
+        }
         
         document.getElementById("id-manual").value = "";
-        setTimeout(() => { 
-          sedangMemproses = false; 
-          lencanaStatus.classList.add("hidden"); 
-        }, 2000);
+
+        setTimeout(() => {
+          sedangMemproses = false;
+          lencanaStatus.classList.add("hidden");
+        }, 2500);
       })
       .catch((error) => {
-        console.error("Fetch error:", error);
-        lencanaStatus.className = "text-center py-2 px-4 rounded-xl font-bold text-sm mb-3 bg-rose-600 text-white block shadow-sm";
-        lencanaStatus.innerText = "❌ GAGAL MENGHUBUNGI SERVER";
-        
-        setTimeout(() => { 
-          sedangMemproses = false; 
-          lencanaStatus.classList.add("hidden"); 
-        }, 3000);
+        console.error("Ralat:", error);
+        lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 bg-rose-600 text-white block";
+        lencanaStatus.innerText = "❌ RALAT RANGKAIAN / PROSES DATA SEKATAN";
+        sedangMemproses = false;
       });
     }
   </script>
