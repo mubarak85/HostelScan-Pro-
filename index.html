@@ -3,11 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v3.1 - Penapis Tarikh</title>
+  <title>HostelScan Pro v3.2 - Eksport Rekod Ponteng</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Pustaka Kamera QR -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  
+  <style>
+    /* CSS Khas untuk Cetakan PDF yang Bersih */
+    @media print {
+      body { background: white; color: black; padding: 0; }
+      #elemen-cetak-padam, .lg\:col-span-5, #kad-tarikh, #kad-analisa, #kad-ringkasan, .butang-aksi {
+        display: none !important;
+      }
+      .lg\:col-span-7 { width: 100% !important; }
+      #kad-belum-masuk { border: none !important; shadow: none !important; }
+      .tabel-cetak { border: 1px solid #000 !important; }
+    }
+  </style>
 </head>
 <body class="bg-slate-100 font-sans min-h-screen p-4 lg:p-6">
 
@@ -16,12 +29,12 @@
     <!-- ================= PANEL KIRI: SCANNER SYSTEM ================= -->
     <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full">
       <div class="bg-blue-600 p-5 text-white text-center relative">
-        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.1</h1>
+        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.2</h1>
         <p class="text-xs text-blue-200 mt-1">Terminal Imbasan & Log Pergerakan</p>
         <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
       </div>
 
-      <div class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
+      <div id="elemen-cetak-padam" class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
         <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-emerald-600 text-white shadow-md text-center">📥 DAFTAR MASUK</button>
         <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-white text-slate-600 border border-slate-200 text-center">📤 BALIK / OUTING</button>
       </div>
@@ -62,7 +75,7 @@
     <div class="lg:col-span-7 space-y-6 w-full">
       
       <!-- KAD PENTING: PILIHAN TARIKH ANALISA -->
-      <div class="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div id="kad-tarikh" class="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-2">
           <span class="text-xl">📅</span>
           <div>
@@ -76,7 +89,7 @@
       </div>
       
       <!-- KAD 1: ANALISA KESELURUHAN -->
-      <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+      <div id="kad-analisa" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
         <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4 flex items-center justify-between">
           <span>📊 Analisa Keseluruhan Pelajar</span>
           <span id="label-tarikh-aktif" class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-md">Hari Ini</span>
@@ -99,7 +112,7 @@
       </div>
 
       <!-- KAD 2: PERINCIAN MENGIKUT TINGKATAN -->
-      <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+      <div id="kad-ringkasan" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
         <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">🏫 Ringkasan Mengikut Tingkatan</h2>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
@@ -120,6 +133,40 @@
         </div>
       </div>
 
+      <!-- ================= KAD 3: NEW! SENARAI PELAJAR BELUM MASUK ================= -->
+      <div id="kad-belum-masuk" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+        <div class="border-b pb-3 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 class="font-bold text-red-600 text-base flex items-center gap-1">⚠️ Senarai Pelajar Belum Masuk</h2>
+            <p class="text-xs text-gray-400 mt-0.5">Pelajar tiada respons atau masih berada di luar / outing.</p>
+          </div>
+          <!-- Butang Eksport -->
+          <div class="flex gap-2 butang-aksi">
+            <button onclick="eksportKeExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg shadow transition-all cursor-pointer">💾 Simpan Excel</button>
+            <button onclick="eksportKePDF()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg shadow transition-all cursor-pointer">📄 Cetak PDF</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse tabel-cetak">
+            <thead>
+              <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-bold">
+                <th class="p-3 rounded-l-lg border-b">Nama Pelajar</th>
+                <th class="p-3 text-center border-b">Ting.</th>
+                <th class="p-3 text-center border-b">Dorm</th>
+                <th class="p-3 text-center border-b">Status Asal</th>
+                <th class="p-3 text-center border-b rounded-r-lg">Masa Log</th>
+              </tr>
+            </thead>
+            <tbody id="jadual-belum-masuk" class="text-sm divide-y divide-slate-100">
+              <tr>
+                <td colspan="5" class="p-4 text-center text-gray-400 italic">Tiada data pelajar tiada/belum masuk.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -128,11 +175,11 @@
     let sedangMemproses = false;
     let modKameraSekarang = "environment";
     let statusSemasaArah = "MASUK";
+    let dataGlobalBelumMasuk = []; // Menyimpan senarai terkini untuk eksport Excel
 
     // ⚠️ TAMPAL URL EXEC APPS SCRIPT ANDA DI SINI
     const urlAPI = "https://script.google.com/macros/s/AKfycbz473UUN247YnjxN4yQOT6fDvhgYeOPY9KEx0wrqHInB_odjewM315iA8dWRDneunHVMA/exec";
 
-    // Set input tarikh kepada tarikh hari ini semasa mula dibuka
     window.onload = function() {
       const hariIni = new Date();
       const yyyy = hariIni.getFullYear();
@@ -140,7 +187,7 @@
       const dd = String(hariIni.getDate()).padStart(2, '0');
       document.getElementById('pilih-tarikh').value = `${yyyy}-${mm}-${dd}`;
       
-      if(urlAPI !== "https://script.google.com/macros/s/AKfycbz473UUN247YnjxN4yQOT6fDvhgYeOPY9KEx0wrqHInB_odjewM315iA8dWRDneunHVMA/exec") {
+      if(urlAPI.includes("/exec")) {
         muatNaikStatistik();
       }
     };
@@ -188,11 +235,8 @@
       if (idInput) prosesPenghantaranData(idInput);
     }
 
-    // MEMANGGIL DATA STATISTIK BERDASARKAN TARIKH YANG DIPILIH
     function muatNaikStatistik() {
       const tarikhPilihan = document.getElementById("pilih-tarikh").value;
-      
-      // Kemas kini label teks pada kad rujukan
       document.getElementById("label-tarikh-aktif").innerText = tarikhPilihan;
 
       fetch(urlAPI + "?tarikh=" + tarikhPilihan)
@@ -203,12 +247,12 @@
           document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk;
           document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar;
           
-          const tbody = document.getElementById("jadual-tingkatan");
-          tbody.innerHTML = "";
-          
+          // 1. KEMASKINI JADUAL TINGKATAN
+          const tbodyTingkat = document.getElementById("jadual-tingkatan");
+          tbodyTingkat.innerHTML = "";
           Object.keys(data.tingkatan).sort().forEach(tingkat => {
             let row = data.tingkatan[tingkat];
-            tbody.innerHTML += `
+            tbodyTingkat.innerHTML += `
               <tr class="hover:bg-slate-50 transition-colors">
                 <td class="p-3 font-bold text-slate-700">${tingkat}</td>
                 <td class="p-3 text-center font-medium">${row.total}</td>
@@ -217,6 +261,28 @@
               </tr>
             `;
           });
+
+          // 2. KEMASKINI JADUAL PELAJAR BELUM MASUK
+          dataGlobalBelumMasuk = data.belumMasuk || [];
+          const tbodyBelumMasuk = document.getElementById("jadual-belum-masuk");
+          tbodyBelumMasuk.innerHTML = "";
+          
+          if(dataGlobalBelumMasuk.length === 0) {
+            tbodyBelumMasuk.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-emerald-600 font-medium italic">🎉 Semua pelajar telah selamat mendaftar masuk!</td></tr>`;
+          } else {
+            dataGlobalBelumMasuk.forEach(pelajar => {
+              let warnaBadge = pelajar.statusTerakhir === "KELUAR" ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-600";
+              tbodyBelumMasuk.innerHTML += `
+                <tr class="hover:bg-red-50/30 transition-colors">
+                  <td class="p-3 font-semibold text-slate-800">${pelajar.nama}</td>
+                  <td class="p-3 text-center text-slate-600">${pelajar.tingkatan} ${pelajar.kelas}</td>
+                  <td class="p-3 text-center font-bold text-blue-600">${pelajar.dorm}</td>
+                  <td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${warnaBadge}">${pelajar.statusTerakhir}</span></td>
+                  <td class="p-3 text-center font-mono text-xs text-slate-500">${pelajar.masaTerakhir}</td>
+                </tr>
+              `;
+            });
+          }
         }
       }).catch(err => console.error("Gagal muat statistik:", err));
     }
@@ -248,8 +314,6 @@
           b.className = data.statusHadir === "MASUK" ? "bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded font-black uppercase" : "bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded font-black uppercase";
           
           document.getElementById("kotak-maklumat").classList.remove("hidden");
-          
-          // Setiap kali imbasan selesai, dia akan kemas kini statistik tarikh aktif secara auto
           muatNaikStatistik();
         } else {
           lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800";
@@ -264,6 +328,45 @@
         lencanaStatus.innerText = "❌ RALAT HUBUNGAN DATABASE";
         sedangMemproses = false;
       });
+    }
+
+    // ================= FUNGSI EKSPORT TERBAHARU =================
+    
+    function eksportKePDF() {
+      // Mengaktifkan paparan cetakan pelayar
+      window.print();
+    }
+
+    function eksportKeExcel() {
+      if (dataGlobalBelumMasuk.length === 0) {
+        alert("Tiada data pelajar belum masuk untuk dieksport.");
+        return;
+      }
+
+      const tarikhPilihan = document.getElementById("pilih-tarikh").value;
+      
+      // Bina format data CSV (Sokong tulisan khas/Unicode)
+      let csvContent = "\uFEFF"; // Byte Order Mark (BOM) supaya Excel baca huruf khas dengan betul
+      csvContent += `SENARAI PELAJAR BELUM MASUK ASRAMA (${tarikhPilihan})\n`;
+      csvContent += "Nama Pelajar,Tingkatan/Kelas,Dorm,Status Terakhir,Masa Log\n";
+
+      dataGlobalBelumMasuk.forEach(p => {
+        // Balut nama dalam pembuka kata bagi mengelakkan masalah koma terpisah
+        csvContent += `"${p.nama}",${p.tingkatan} ${p.kelas},${p.dorm},${p.statusTerakhir},${p.masaTerakhir}\n`;
+      });
+
+      // Bina pautan muat turun fail maya
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Pelajar_Belum_Masuk_${tarikhPilihan}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   </script>
 </body>
