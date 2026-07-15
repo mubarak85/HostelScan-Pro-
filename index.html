@@ -17,8 +17,14 @@
         display: none !important;
       }
       .lg\:col-span-7 { width: 100% !important; }
-      #kad-belum-masuk { border: none !important; shadow: none !important; }
+      #kad-belum-masuk { border: none !important; box-shadow: none !important; }
       .tabel-cetak { border: 1px solid #000 !important; }
+    }
+    /* Memastikan elemen video html5-qrcode memenuhi bingkai dengan betul */
+    #reader video {
+      object-fit: cover !important;
+      width: 100% !important;
+      height: 100% !important;
     }
   </style>
 </head>
@@ -44,7 +50,7 @@
           <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 shadow-sm flex items-center justify-center">
             <div id="reader" class="w-full h-full"></div>
             <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
-              <button onclick="mulaKameraGitHub()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md text-sm">📷 Aktifkan Kamera Live</button>
+              <button onclick="mulaKameraGitHub()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md text-sm cursor-pointer">📷 Aktifkan Kamera Live</button>
             </div>
           </div>
         </div>
@@ -56,7 +62,7 @@
           </summary>
           <div class="flex gap-2 mt-2">
             <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-1.5 border rounded-lg text-sm uppercase font-mono">
-            <button onclick="hantarIDManual()" class="bg-slate-700 text-white font-bold px-4 py-1.5 rounded-lg text-sm">Semak</button>
+            <button onclick="hantarIDManual()" class="bg-slate-700 text-white font-bold px-4 py-1.5 rounded-lg text-sm cursor-pointer">Semak</button>
           </div>
         </details>
       </div>
@@ -133,7 +139,7 @@
         </div>
       </div>
 
-      <!-- ================= KAD 3: NEW! SENARAI PELAJAR BELUM MASUK ================= -->
+      <!-- ================= KAD 3: SENARAI PELAJAR BELUM MASUK ================= -->
       <div id="kad-belum-masuk" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
         <div class="border-b pb-3 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
@@ -175,9 +181,8 @@
     let sedangMemproses = false;
     let modKameraSekarang = "environment";
     let statusSemasaArah = "MASUK";
-    let dataGlobalBelumMasuk = []; // Menyimpan senarai terkini untuk eksport Excel
+    let dataGlobalBelumMasuk = []; 
 
-    // ⚠️ TAMPAL URL EXEC APPS SCRIPT ANDA DI SINI
     const urlAPI = "https://script.google.com/macros/s/AKfycbz473UUN247YnjxN4yQOT6fDvhgYeOPY9KEx0wrqHInB_odjewM315iA8dWRDneunHVMA/exec";
 
     window.onload = function() {
@@ -211,23 +216,42 @@
 
     function mulaKameraGitHub() {
       document.getElementById('overlay-mula').style.display = 'none';
-      html5QrCode = new Html5Qrcode("reader");
+      // Menggunakan verbose mode (false) untuk mengurangkan log ralat tidak kritikal
+      html5QrCode = new Html5Qrcode("reader", false);
       jalankanKamera(modKameraSekarang);
     }
 
     function jalankanKamera(facingModeTarget) {
+      // Mengoptimumkan tetapan bagi mengelakkan isu kamera tersekat di pelayar mudah alih
       html5QrCode.start(
         { facingMode: facingModeTarget }, 
-        { fps: 24, qrbox: function(w, h) { let m = Math.min(w, h); return { width: Math.floor(m * 0.75), height: Math.floor(m * 0.75) }; } },
-        (decodedText) => { if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); },
-        (errorMessage) => {}
-      ).then(() => { document.getElementById("btn-tukar-kamera").classList.remove("hidden"); });
+        { 
+          fps: 15, // Ditetapkan ke 15 fps untuk prestasi peranti mudah alih yang lebih lancar
+          qrbox: (width, height) => {
+            let size = Math.min(width, height) * 0.7;
+            return { width: size, height: size };
+          }
+        },
+        (decodedText) => { 
+          if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); 
+        },
+        (errorMessage) => {
+          // Mengabaikan log ralat semasa imbasan berjalan untuk mengelakkan memory leak
+        }
+      ).then(() => { 
+        document.getElementById("btn-tukar-kamera").classList.remove("hidden"); 
+      }).catch(err => {
+        console.error("Gagal mulakan kamera: ", err);
+        alert("Gagal mengakses kamera. Sila pastikan anda membuka pautan ini menggunakan pelayar penuh (Chrome/Safari) dan memberikan kebenaran (Allow) kamera.");
+      });
     }
 
     function tukarKamera() {
       if (!html5QrCode) return;
       modKameraSekarang = (modKameraSekarang === "environment") ? "user" : "environment";
-      html5QrCode.stop().then(() => { jalankanKamera(modKameraSekarang); });
+      html5QrCode.stop().then(() => { 
+        jalankanKamera(modKameraSekarang); 
+      }).catch(err => console.error("Gagal menukar kamera: ", err));
     }
 
     function hantarIDManual() {
@@ -247,7 +271,6 @@
           document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk;
           document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar;
           
-          // 1. KEMASKINI JADUAL TINGKATAN
           const tbodyTingkat = document.getElementById("jadual-tingkatan");
           tbodyTingkat.innerHTML = "";
           Object.keys(data.tingkatan).sort().forEach(tingkat => {
@@ -262,7 +285,6 @@
             `;
           });
 
-          // 2. KEMASKINI JADUAL PELAJAR BELUM MASUK
           dataGlobalBelumMasuk = data.belumMasuk || [];
           const tbodyBelumMasuk = document.getElementById("jadual-belum-masuk");
           tbodyBelumMasuk.innerHTML = "";
@@ -329,11 +351,8 @@
         sedangMemproses = false;
       });
     }
-
-    // ================= FUNGSI EKSPORT TERBAHARU =================
     
     function eksportKePDF() {
-      // Mengaktifkan paparan cetakan pelayar
       window.print();
     }
 
@@ -344,18 +363,14 @@
       }
 
       const tarikhPilihan = document.getElementById("pilih-tarikh").value;
-      
-      // Bina format data CSV (Sokong tulisan khas/Unicode)
-      let csvContent = "\uFEFF"; // Byte Order Mark (BOM) supaya Excel baca huruf khas dengan betul
+      let csvContent = "\uFEFF"; 
       csvContent += `SENARAI PELAJAR BELUM MASUK ASRAMA (${tarikhPilihan})\n`;
       csvContent += "Nama Pelajar,Tingkatan/Kelas,Dorm,Status Terakhir,Masa Log\n";
 
       dataGlobalBelumMasuk.forEach(p => {
-        // Balut nama dalam pembuka kata bagi mengelakkan masalah koma terpisah
         csvContent += `"${p.nama}",${p.tingkatan} ${p.kelas},${p.dorm},${p.statusTerakhir},${p.masaTerakhir}\n`;
       });
 
-      // Bina pautan muat turun fail maya
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
