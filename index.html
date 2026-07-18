@@ -221,50 +221,16 @@
       jalankanKamera(modKameraSekarang);
     }
 
-function jalankanKamera(facingModeTarget) {
+    function jalankanKamera(facingModeTarget) {
+      // Mengoptimumkan tetapan bagi mengelakkan isu kamera tersekat di pelayar mudah alih
       html5QrCode.start(
         { facingMode: facingModeTarget }, 
         { 
-          fps: 20, // Ditingkatkan kepada 20 untuk imbasan lebih pantas
-          qrbox: { width: 300, height: 300 }, // Saiz kotak yang lebih mesra fokus
-          aspectRatio: 1.0,
-          videoConstraints: {
-            facingMode: facingModeTarget,
-            width: { ideal: 1280 }, // Resolusi HD untuk ketajaman QR
-            height: { ideal: 720 }
+          fps: 15, // Ditetapkan ke 15 fps untuk prestasi peranti mudah alih yang lebih lancar
+          qrbox: (width, height) => {
+            let size = Math.min(width, height) * 0.7;
+            return { width: size, height: size };
           }
-        },
-        (decodedText) => { 
-          if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); 
-        },
-        (errorMessage) => {
-          // Abaikan log ralat semasa imbasan
-        }
-      ).then(() => { 
-        document.getElementById("btn-tukar-kamera").classList.remove("hidden"); 
-      }).catch(err => {
-        console.error("Gagal mulakan kamera: ", err);
-        alert("Gagal mengakses kamera. Sila pastikan anda memberikan kebenaran (Allow) kamera.");
-      });
-    }
-        },
-        (decodedText) => { 
-          if (!sedangMemproses) {
-            // Bunyi dimainkan SERTA-MERTA apabila QR dikesan
-            mainkanBunyi('BERJAYA');
-            prosesPenghantaranData(decodedText.trim()); 
-          }
-        },
-        (errorMessage) => {
-          // Mengabaikan ralat imbasan biasa
-        }
-      ).then(() => { 
-        document.getElementById("btn-tukar-kamera").classList.remove("hidden"); 
-      }).catch(err => {
-        console.error("Gagal mulakan kamera: ", err);
-        alert("Gagal mengakses kamera. Sila pastikan kebenaran kamera (Allow) diberikan.");
-      });
-    }
         },
         (decodedText) => { 
           if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); 
