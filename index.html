@@ -145,10 +145,7 @@
           document.getElementById("data-nama").innerText = data.nama; document.getElementById("data-dorm").innerText = data.dorm;
           const statusEl = document.getElementById("data-status");
           statusEl.innerText = data.statusHadir;
-          // Logik warna status: LEWAT (Oren), MASUK (Hijau), KELUAR (Merah)
-          statusEl.className = (data.statusHadir === "LEWAT") 
-            ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-orange-100 text-orange-800" 
-            : (data.statusHadir === "MASUK" ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800" : "text-xs px-2 py-0.5 rounded font-black uppercase bg-red-100 text-red-800");
+          statusEl.className = (data.statusHadir === "LEWAT") ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-orange-100 text-orange-800" : (data.statusHadir === "MASUK" ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800" : "text-xs px-2 py-0.5 rounded font-black uppercase bg-red-100 text-red-800");
           document.getElementById("kotak-maklumat").classList.remove("hidden"); muatNaikStatistik();
         } else { mainkanBunyi('GAGAL'); lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800"; lencana.innerText = "ID Tiada"; }
         setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
@@ -178,7 +175,34 @@
       });
     }
     
-    function eksportKePDF() { window.print(); } function eksportKeExcel() { alert("Fungsi Excel aktif."); }
+    function eksportKePDF() { window.print(); } 
+
+    function eksportKeExcel() {
+        const table = document.getElementById("jadual-belum-masuk");
+        if (!table || table.innerText.includes("Tiada")) {
+            alert("Tiada data pelajar untuk dieksport.");
+            return;
+        }
+        let csv = ["Nama,Tingkatan,Dorm,Status"];
+        let rows = table.querySelectorAll("tr");
+        for (let i = 0; i < rows.length; i++) {
+            let row = [], cols = rows[i].querySelectorAll("td");
+            for (let j = 0; j < cols.length; j++) {
+                let text = cols[j].innerText.trim().replace(/"/g, '""');
+                row.push('"' + text + '"');
+            }
+            if (row.length > 0) csv.push(row.join(","));
+        }
+        const csvContent = "\uFEFF" + csv.join("\n");
+        const csvFile = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const downloadLink = document.createElement("a");
+        downloadLink.download = "Senarai_Pelajar_" + new Date().toISOString().split('T')[0] + ".csv";
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
   </script>
 </body>
 </html>
