@@ -221,17 +221,15 @@
       jalankanKamera(modKameraSekarang);
     }
 
- function jalankanKamera(facingModeTarget) {
+  function jalankanKamera(facingModeTarget) {
+      // Mengoptimumkan tetapan bagi mengelakkan isu kamera tersekat di pelayar mudah alih
       html5QrCode.start(
         { facingMode: facingModeTarget }, 
         { 
-          fps: 20, // Tingkatkan FPS untuk imbasan lebih pantas
-          qrbox: { width: 300, height: 300 }, // Saiz kotak yang lebih besar untuk fokus mudah
-          aspectRatio: 1.0,
-          videoConstraints: {
-            facingMode: facingModeTarget,
-            width: { ideal: 1280 }, // Gunakan resolusi HD
-            height: { ideal: 720 }
+          fps: 15, // Ditetapkan ke 15 fps untuk prestasi peranti mudah alih yang lebih lancar
+          qrbox: (width, height) => {
+            let size = Math.min(width, height) * 0.7;
+            return { width: size, height: size };
           }
         },
         (decodedText) => { if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); },
