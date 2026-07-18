@@ -221,20 +221,32 @@
       jalankanKamera(modKameraSekarang);
     }
 
-    function jalankanKamera(facingModeTarget) {
-      // Menggunakan saiz qrbox yang lebih besar (80% daripada lebar kamera)
-      // supaya warden tidak perlu bersusah payah menghalakan QR dengan tepat
+function jalankanKamera(facingModeTarget) {
       html5QrCode.start(
         { facingMode: facingModeTarget }, 
         { 
-          fps: 20, 
-          qrbox: { width: 450, height: 450 }, // Saiz sasaran diperbesarkan
+          fps: 20, // Ditingkatkan kepada 20 untuk imbasan lebih pantas
+          qrbox: { width: 300, height: 300 }, // Saiz kotak yang lebih mesra fokus
           aspectRatio: 1.0,
           videoConstraints: {
             facingMode: facingModeTarget,
-            width: { ideal: 1920 }, // Resolusi tinggi untuk fokus lebih pantas
-            height: { ideal: 1080 }
+            width: { ideal: 1280 }, // Resolusi HD untuk ketajaman QR
+            height: { ideal: 720 }
           }
+        },
+        (decodedText) => { 
+          if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); 
+        },
+        (errorMessage) => {
+          // Abaikan log ralat semasa imbasan
+        }
+      ).then(() => { 
+        document.getElementById("btn-tukar-kamera").classList.remove("hidden"); 
+      }).catch(err => {
+        console.error("Gagal mulakan kamera: ", err);
+        alert("Gagal mengakses kamera. Sila pastikan anda memberikan kebenaran (Allow) kamera.");
+      });
+    }
         },
         (decodedText) => { 
           if (!sedangMemproses) {
