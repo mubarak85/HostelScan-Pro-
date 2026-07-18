@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v3.2</title>
+  <title>HostelScan Pro v3.2 - Eksport Rekod Ponteng</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Pustaka Kamera QR -->
@@ -221,7 +221,7 @@
       jalankanKamera(modKameraSekarang);
     }
 
-  function jalankanKamera(facingModeTarget) {
+    function jalankanKamera(facingModeTarget) {
       // Mengoptimumkan tetapan bagi mengelakkan isu kamera tersekat di pelayar mudah alih
       html5QrCode.start(
         { facingMode: facingModeTarget }, 
@@ -231,12 +231,6 @@
             let size = Math.min(width, height) * 0.7;
             return { width: size, height: size };
           }
-        },
-        (decodedText) => { if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); },
-        (err) => {}
-      ).then(() => { document.getElementById("btn-tukar-kamera").classList.remove("hidden"); })
-       .catch(err => { alert("Kamera gagal diakses."); });
-    }
         },
         (decodedText) => { 
           if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); 
