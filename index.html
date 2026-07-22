@@ -9,18 +9,18 @@
   <style>
     @media print {
       body { background: white; color: black; padding: 0; }
-      #elemen-cetak-padam, .lg\:col-span-5, #kad-tarikh, #kad-analisa, #kad-ringkasan, .butang-aksi { display: none !important; }
-      .lg\:col-span-7 { width: 100% !important; }
-      #kad-belum-masuk { border: none !important; box-shadow: none !important; }
+      #elemen-cetak-padam, .lg\:col-span-4-kamera, #kad-tarikh, #kad-analisa, #kad-ringkasan, #kad-belum-masuk, .butang-aksi { display: none !important; }
+      .lg\:col-span-4-sidebar { width: 100% !important; border: none !important; box-shadow: none !important; }
       .tabel-cetak { border: 1px solid #000 !important; }
     }
     #reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; }
   </style>
 </head>
 <body class="bg-slate-100 font-sans min-h-screen p-4 lg:p-6">
-  <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
     
-    <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full">
+    <!-- KOLOM 1: KAMERA & PENGIMBAS -->
+    <div class="lg:col-span-4 lg\:col-span-4-kamera bg-white rounded-2xl shadow-xl overflow-hidden w-full">
       <div class="bg-blue-600 p-5 text-white text-center relative">
         <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.2</h1>
         <p class="text-xs text-blue-200 mt-1">Terminal Imbasan & Log Pergerakan</p>
@@ -28,8 +28,8 @@
       </div>
 
       <div id="elemen-cetak-padam" class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
-        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center">📥 DAFTAR MASUK</button>
-        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center">📤 BALIK / OUTING</button>
+        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer">📥 DAFTAR MASUK</button>
+        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer">📤 BALIK / OUTING</button>
       </div>
 
       <div class="p-5 space-y-4">
@@ -60,7 +60,22 @@
       </div>
     </div>
 
-    <div class="lg:col-span-7 space-y-6 w-full">
+    <!-- KOLOM 2: SIDEBAR LOG TERKINI -->
+    <div class="lg:col-span-4 lg\:col-span-4-sidebar bg-white p-6 rounded-2xl shadow-xl border border-slate-100 flex flex-col h-full">
+      <div class="border-b pb-3 mb-4 flex items-center justify-between">
+        <h2 class="font-bold text-slate-800 text-base">📋 Sidebar Log Terkini</h2>
+        <div class="flex gap-1 butang-aksi">
+          <button onclick="eksportLogExcel()" class="bg-emerald-600 text-white text-[10px] font-bold py-1 px-2 rounded-lg cursor-pointer">💾 Excel</button>
+          <button onclick="eksportLogPDF()" class="bg-rose-600 text-white text-[10px] font-bold py-1 px-2 rounded-lg cursor-pointer">📄 PDF</button>
+        </div>
+      </div>
+      <div id="sidebar-log-pergerakan" class="space-y-3 overflow-y-auto max-h-[550px] pr-1">
+        <p class="text-xs text-gray-400 italic text-center py-6">Memuatkan rekod log...</p>
+      </div>
+    </div>
+
+    <!-- KOLOM 3: ANALISIS & RINGKASAN WARDEN -->
+    <div class="lg:col-span-4 space-y-6 w-full">
       <div id="kad-tarikh" class="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-2"><span>📅</span><div><h3 class="font-bold text-sm text-slate-800">Tarikh Rujukan Warden</h3></div></div>
         <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="border border-slate-300 rounded-xl px-3 py-1.5 text-sm font-semibold text-slate-700 bg-slate-50 w-full sm:w-auto">
@@ -68,18 +83,22 @@
       
       <div id="kad-analisa" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
         <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">📊 Analisa Keseluruhan</h2>
-        <div class="grid grid-cols-3 gap-4 text-center">
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><p class="text-xs text-slate-500 uppercase">Jumlah</p><p id="stat-total" class="text-2xl font-black text-slate-800 mt-1">0</p></div>
-          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><p class="text-xs text-emerald-600 uppercase">Masuk</p><p id="stat-masuk" class="text-2xl font-black text-emerald-700 mt-1">0</p></div>
-          <div class="bg-red-50 p-3 rounded-xl border border-red-100"><p class="text-xs text-red-600 uppercase">Keluar</p><p id="stat-keluar" class="text-2xl font-black text-red-700 mt-1">0</p></div>
+        <div class="grid grid-cols-3 gap-3 text-center mb-3">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><p class="text-[11px] text-slate-500 uppercase">Jumlah</p><p id="stat-total" class="text-xl font-black text-slate-800 mt-1">0</p></div>
+          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><p class="text-[11px] text-emerald-600 uppercase">Masuk</p><p id="stat-masuk" class="text-xl font-black text-emerald-700 mt-1">0</p></div>
+          <div class="bg-red-50 p-3 rounded-xl border border-red-100"><p class="text-[11px] text-red-600 uppercase">Keluar</p><p id="stat-keluar" class="text-xl font-black text-red-700 mt-1">0</p></div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-center">
+          <div class="bg-orange-50 p-3 rounded-xl border border-orange-100"><p class="text-[11px] text-orange-600 uppercase">Baki Masuk</p><p id="stat-baki-masuk" class="text-lg font-black text-orange-700 mt-1">0</p></div>
+          <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><p class="text-[11px] text-blue-600 uppercase">Baki Keluar</p><p id="stat-baki-keluar" class="text-lg font-black text-blue-700 mt-1">0</p></div>
         </div>
       </div>
 
       <div id="kad-ringkasan" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
         <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">🏫 Ringkasan Tingkatan</h2>
         <div class="overflow-x-auto">
-          <table class="w-full text-left">
-            <thead class="text-xs uppercase text-slate-500"><tr><th class="p-2">Ting.</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Masuk</th><th class="p-2 text-center">Keluar</th></tr></thead>
+          <table class="w-full text-left text-xs">
+            <thead class="uppercase text-slate-500"><tr><th class="p-2">Ting.</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Masuk</th><th class="p-2 text-center">Keluar</th></tr></thead>
             <tbody id="jadual-tingkatan"></tbody>
           </table>
         </div>
@@ -93,14 +112,15 @@
             <button onclick="eksportKePDF()" class="bg-rose-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg cursor-pointer">📄 PDF</button>
           </div>
         </div>
-        <div class="overflow-x-auto"><table class="w-full text-left border-collapse tabel-cetak"><thead class="bg-slate-100 text-slate-600 text-xs uppercase font-bold"><tr><th class="p-3">Nama</th><th class="p-3 text-center">Ting.</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center">Status</th></tr></thead><tbody id="jadual-belum-masuk" class="text-sm divide-y divide-slate-100"></tbody></table></div>
+        <div class="overflow-x-auto"><table class="w-full text-left border-collapse tabel-cetak"><thead class="bg-slate-100 text-slate-600 text-xs uppercase font-bold"><tr><th class="p-3">Nama</th><th class="p-3 text-center">Ting.</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center">Status</th></tr></thead><tbody id="jadual-belum-masuk" class="text-xs divide-y divide-slate-100"></tbody></table></div>
       </div>
     </div>
   </div>
 
   <script>
     let html5QrCode; let sedangMemproses = false; let modKameraSekarang = "environment"; let statusSemasaArah = "MASUK";
-    const urlAPI = "https://script.google.com/macros/s/AKfycbxWucFOH_X8Q7G4mVJJms4DKju2z2hPN55ZpwbVt-7MPEqTsp1xnopnQhkAksJoJxZ9cg/exec";
+    let senaraiLogData = []; 
+    const urlAPI = "https://script.google.com/macros/s/AKfycbwwS9WzzyUgszP_vrFEI-mdgXVJmWZ9pZG4SaHWLFl7lJI7iRI56-tjB94XdJO423gnVg/exec";
     
     function mainkanBunyi(jenis) {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -119,8 +139,8 @@
     
     function setModPergerakan(arah) {
       statusSemasaArah = arah;
-      document.getElementById("tab-masuk").className = (arah === 'MASUK') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200";
-      document.getElementById("tab-keluar").className = (arah === 'KELUAR') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white shadow-md" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200";
+      document.getElementById("tab-masuk").className = (arah === 'MASUK') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
+      document.getElementById("tab-keluar").className = (arah === 'KELUAR') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white shadow-md text-center cursor-pointer" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
       document.getElementById("bingkai-kamera").style.borderColor = (arah === 'MASUK') ? "#10b981" : "#ef4444";
     }
     
@@ -137,21 +157,51 @@
     function hantarIDManual() { const id = document.getElementById("id-manual").value.trim(); if (id) prosesPenghantaranData(id); }
     
     function prosesPenghantaranData(id) {
-      if (sedangMemproses) return; sedangMemproses = true; const lencana = document.getElementById("notifikasi-badge"); lencana.classList.remove("hidden"); lencana.innerText = "Memproses...";
-      fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasaArah }) })
-      .then(res => res.json()).then(data => {
+      if (sedangMemproses) return; 
+      sedangMemproses = true; 
+      const lencana = document.getElementById("notifikasi-badge"); 
+      lencana.classList.remove("hidden"); 
+      lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-blue-100 text-blue-800";
+      lencana.innerText = "Memproses...";
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      fetch(urlAPI, { 
+        method: "POST", 
+        body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasaArah }),
+        signal: controller.signal
+      })
+      .then(res => res.json())
+      .then(data => {
+        clearTimeout(timeoutId);
         if (data.status === "SUCCESS") {
-          mainkanBunyi('BERJAYA'); lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800"; lencana.innerText = "Berjaya!";
-          document.getElementById("data-nama").innerText = data.nama; document.getElementById("data-dorm").innerText = data.dorm;
+          mainkanBunyi('BERJAYA'); 
+          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800"; 
+          lencana.innerText = "Berjaya!";
+          document.getElementById("data-nama").innerText = data.nama; 
+          document.getElementById("data-dorm").innerText = data.dorm;
           const statusEl = document.getElementById("data-status");
           statusEl.innerText = data.statusHadir;
-          statusEl.className = (data.statusHadir === "LEWAT") ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-orange-100 text-orange-800" : (data.statusHadir === "MASUK" ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800" : "text-xs px-2 py-0.5 rounded font-black uppercase bg-red-100 text-red-800");
-          document.getElementById("kotak-maklumat").classList.remove("hidden"); muatNaikStatistik();
-        } else { mainkanBunyi('GAGAL'); lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800"; lencana.innerText = "ID Tiada"; }
+          statusEl.className = data.statusHadir === "MASUK" ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800" : "text-xs px-2 py-0.5 rounded font-black uppercase bg-red-100 text-red-800";
+          document.getElementById("kotak-maklumat").classList.remove("hidden"); 
+          muatNaikStatistik();
+        } else { 
+          mainkanBunyi('GAGAL'); 
+          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800"; 
+          lencana.innerText = "ID Tiada"; 
+        }
         setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
+      })
+      .catch(err => {
+        clearTimeout(timeoutId);
+        mainkanBunyi('GAGAL');
+        lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-100 text-amber-800";
+        lencana.innerText = "Masalah Rangkaian / Masa Terbuang";
+        setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2500);
       });
     }
-    
+
     function muatNaikStatistik() {
       const tarikh = document.getElementById("pilih-tarikh").value;
       fetch(`${urlAPI}?tarikh=${tarikh}&t=${new Date().getTime()}`)
@@ -161,6 +211,9 @@
         document.getElementById("stat-total").innerText = data.keseluruhan.total;
         document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk;
         document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar;
+        document.getElementById("stat-baki-masuk").innerText = data.keseluruhan.bakiMasuk;
+        document.getElementById("stat-baki-keluar").innerText = data.keseluruhan.bakiKeluar;
+
         const tbodyTingkat = document.getElementById("jadual-tingkatan"); tbodyTingkat.innerHTML = "";
         if (data.tingkatan) {
             Object.keys(data.tingkatan).sort().forEach(tingkat => {
@@ -172,7 +225,58 @@
         if (data.belumMasuk && data.belumMasuk.length > 0) {
           data.belumMasuk.forEach(p => { tbody.innerHTML += `<tr><td class="p-3 font-semibold">${p.nama}</td><td class="p-3 text-center">${p.tingkatan}</td><td class="p-3 text-center font-bold text-blue-600">${p.dorm}</td><td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.statusTerakhir === 'KELUAR' ? 'bg-red-100' : (p.statusTerakhir === 'LEWAT' ? 'bg-orange-100' : 'bg-gray-100')}">${p.statusTerakhir}</span></td></tr>`; });
         } else { tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400 italic">Tiada pelajar belum masuk.</td></tr>`; }
+
+        const sidebar = document.getElementById("sidebar-log-pergerakan");
+        sidebar.innerHTML = "";
+        
+        if (data.logPergerakan && data.logPergerakan.length > 0) {
+            senaraiLogData = data.logPergerakan;
+            senaraiLogData.forEach(item => {
+                const warnaBg = (item.arah === 'MASUK') ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800';
+                const ikonArah = (item.arah === 'MASUK') ? '📥 MASUK' : '📤 KELUAR';
+                sidebar.innerHTML += `
+                  <div class="p-3 rounded-xl border ${warnaBg} shadow-xs flex items-center justify-between transition-all">
+                    <div>
+                      <p class="font-bold text-xs text-slate-800">${item.nama}</p>
+                      <p class="text-[11px] text-slate-600 font-medium">Kelas: ${item.kelas} • Ting: ${item.tingkatan}</p>
+                      <p class="text-[11px] text-slate-500">Dorm: <span class="font-semibold text-blue-600">${item.dorm}</span> • <span class="font-mono text-[10px]">${item.masa}</span></p>
+                    </div>
+                    <span class="text-[10px] px-2 py-1 rounded-md font-black uppercase bg-white shadow-xs">${ikonArah}</span>
+                  </div>
+                `;
+            });
+        } else {
+            senaraiLogData = [];
+            sidebar.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-6">Tiada rekod log untuk tarikh ini.</p>`;
+        }
+      })
+      .catch(err => {
+        const sidebar = document.getElementById("sidebar-log-pergerakan");
+        sidebar.innerHTML = `<p class="text-xs text-red-400 italic text-center py-6">Gagal memuatkan log.</p>`;
       });
+    }
+    
+    function eksportLogPDF() { window.print(); }
+
+    function eksportLogExcel() {
+        if (senaraiLogData.length === 0) {
+            alert("Tiada rekod log untuk dieksport.");
+            return;
+        }
+        let csv = ["Nama,Kelas,Tingkatan,Dorm,Status,Masa"];
+        senaraiLogData.forEach(item => {
+            let row = [`"${item.nama}"`, `"${item.kelas}"`, `"${item.tingkatan}"`, `"${item.dorm}"`, `"${item.arah}"`, `"${item.masa}"`];
+            csv.push(row.join(","));
+        });
+        const csvContent = "\uFEFF" + csv.join("\n");
+        const csvFile = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const downloadLink = document.createElement("a");
+        downloadLink.download = "Log_Imbasan_" + document.getElementById("pilih-tarikh").value + ".csv";
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
     }
     
     function eksportKePDF() { window.print(); } 
@@ -196,7 +300,7 @@
         const csvContent = "\uFEFF" + csv.join("\n");
         const csvFile = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
         const downloadLink = document.createElement("a");
-        downloadLink.download = "Senarai_Pelajar_" + new Date().toISOString().split('T')[0] + ".csv";
+        downloadLink.download = "Senarai_Pelajar_" + document.getElementById("pilih-tarikh").value + ".csv";
         downloadLink.href = window.URL.createObjectURL(csvFile);
         downloadLink.style.display = "none";
         document.body.appendChild(downloadLink);
