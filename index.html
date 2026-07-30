@@ -114,11 +114,10 @@
             </div>
           </div>
         </div>
-        <details class="group border-t border-slate-800/80 pt-2">
+        <details class="group border-t border-slate-800/80 pt-2" open>
           <summary class="list-none flex justify-between items-center font-semibold text-xs text-slate-400 cursor-pointer py-1 hover:text-indigo-400 transition-colors"><span>✏️ Taip ID Manual Cepat</span><span class="transition group-open:rotate-180 text-[10px]">▼</span></summary>
-          <div class="flex gap-2 mt-2">
-            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-2.5 glass-input rounded-xl text-sm uppercase font-mono text-white focus:outline-none">
-            <button onclick="hantarIDManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-sm cursor-pointer transition-all shadow-md shadow-indigo-600/30">Semak</button>
+          <div class="mt-2">
+            <input type="text" id="id-manual" oninput="if(this.value.trim().length >= 8) { hantarIDManual(); }" placeholder="Contoh: TB2024001 (Auto-semak)" class="w-full px-3 py-2.5 glass-input rounded-xl text-sm uppercase font-mono text-white focus:outline-none" autofocus>
           </div>
         </details>
       </div>
