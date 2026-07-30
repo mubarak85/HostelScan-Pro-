@@ -80,23 +80,28 @@
         <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all transform active:scale-95">📤 BALIK / OUTING</button>
       </div>
 
-      <!-- KOTAK PILIHAN KESALAHAN DISIPLIN -->
-      <div class="p-4 bg-slate-900/60 border-b border-slate-800/80 space-y-2">
-        <p class="text-xs font-bold text-rose-400 uppercase tracking-wider">⚠️ Rekod Salahlaku (Jika Ada):</p>
-        <div class="grid grid-cols-3 gap-2 text-xs">
-          <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
-            <input type="checkbox" name="kesalahan" value="Tak Pakai Kasut" class="rounded accent-rose-500">
-            <span class="text-slate-300">❌ Kasut</span>
-          </label>
-          <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
-            <input type="checkbox" name="kesalahan" value="Tak Pakai Batik" class="rounded accent-rose-500">
-            <span class="text-slate-300">❌ Batik</span>
-          </label>
-          <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
-            <input type="checkbox" name="kesalahan" value="Tak Pakai Stokin" class="rounded accent-rose-500">
-            <span class="text-slate-300">❌ Stokin</span>
-          </label>
-        </div>
+ ```html
+    <!-- KOTAK PILIHAN KESALAHAN DISIPLIN -->
+    <div class="p-4 bg-slate-900/60 border-b border-slate-800/80 space-y-2">
+      <p class="text-xs font-bold text-rose-400 uppercase tracking-wider">⚠️ Rekod Salahlaku (Jika Ada):</p>
+      <div class="grid grid-cols-3 gap-2 text-xs">
+        <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
+          <input type="checkbox" name="kesalahan" value="Tak Pakai Kasut" class="rounded accent-rose-500">
+          <span class="text-slate-300">❌ Kasut</span>
+        </label>
+        <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
+          <input type="checkbox" name="kesalahan" value="Tak Pakai Batik" class="rounded accent-rose-500">
+          <span class="text-slate-300">❌ Batik</span>
+        </label>
+        <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
+          <input type="checkbox" name="kesalahan" value="Tak Pakai Stokin" class="rounded accent-rose-500">
+          <span class="text-slate-300">❌ Stokin</span>
+        </label>
+        <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
+          <input type="checkbox" name="kesalahan" value="Tidak Bawa / Hilang Kad" class="rounded accent-rose-500">
+          <span class="text-slate-300">❌ Hilang/Tak Bawa Kad</span>
+        </label>
+      </div>
       </div>
 
       <div class="p-5 space-y-4">
