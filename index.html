@@ -279,22 +279,32 @@
 let timerTaip;
     function lewatTaipID(nilai) {
       clearTimeout(timerTaip);
+      
+      const bersihID = nilai.trim();
+
+      // Jika ID sudah mencecah 12 aksara, terus hantar serta-merta
+      if (bersihID.length >= 12) {
+        hantarIDManual();
+        return;
+      }
+
+      // Jika ID panjangnya 8 aksara (atau lebih dari 6), tunggu 2 saat selepas berhenti menaip
       timerTaip = setTimeout(() => {
-        if (nilai.trim().length >= 6) { // Mula auto-semak jika panjang ID sekurang-kurangnya 6 aksara
+        if (bersihID.length >= 8) {
           hantarIDManual();
         }
-      }, 1000); // 1000 milisaat = 1 saat masa menunggu selepas berhenti menaip
+      }, 2000); // 2 saat masa menunggu
     }
 
     function hantarIDManual() { 
       const inputEl = document.getElementById("id-manual");
       const id = inputEl.value.trim(); 
       if (id) {
+        clearTimeout(timerTaip); 
         prosesPenghantaranData(id); 
-        inputEl.value = ""; // Kosongkan kotak taip automatik selepas hantar
+        inputEl.value = ""; // Kosongkan kotak taip automatik
       }
     }
-    
     // --- OFFLINE SYNC SYSTEM (INDEXED / LOCALSTORAGE) ---
     function simpanQueueOffline(id, arah, kesalahan) {
         let queue = JSON.parse(localStorage.getItem('hostelQueue') || '[]');
