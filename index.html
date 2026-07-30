@@ -276,7 +276,14 @@
     
     function tukarKamera() { html5QrCode.stop().then(() => { modKameraSekarang = (modKameraSekarang === "environment") ? "user" : "environment"; jalankanKamera(modKameraSekarang); }); }
     
-    function hantarIDManual() { const id = document.getElementById("id-manual").value.trim(); if (id) prosesPenghantaranData(id); }
+    function hantarIDManual() { 
+      const inputEl = document.getElementById("id-manual");
+      const id = inputEl.value.trim(); 
+      if (id) {
+        prosesPenghantaranData(id); 
+        inputEl.value = ""; // Kosongkan kotak taip selepas hantar
+      }
+    }
     
     // --- OFFLINE SYNC SYSTEM (INDEXED / LOCALSTORAGE) ---
     function simpanQueueOffline(id, arah, kesalahan) {
