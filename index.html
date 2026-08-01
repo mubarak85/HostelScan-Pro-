@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.3 - iOS Stable</title>
+  <title>HostelScan Pro v4.4 - Universal Cross-Platform</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <!-- Pustaka rasmi html5-qrcode versi stabil -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     @keyframes pulse-glow {
       0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
@@ -27,6 +28,15 @@
     .glass-input:focus {
       border-color: #6366f1;
       box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+    }
+    #reader {
+      border: none !important;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+    #reader video {
+      object-fit: cover;
+      border-radius: 1rem;
     }
     @media print {
       body { background: white; color: black; padding: 0; }
@@ -52,7 +62,7 @@
         <h1 class="text-xl font-black tracking-wider uppercase drop-shadow-sm flex items-center justify-center gap-2">
           <span>⚡</span> HOSTELSCAN PRO
         </h1>
-        <p class="text-xs text-blue-100/90 font-medium mt-1">Terminal Imbasan iOS Dioptimumkan</p>
+        <p class="text-xs text-blue-100/90 font-medium mt-1">Terminal Universal Android & iOS</p>
         <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
           <button id="btn-suara" onclick="toggleSuaraVoice()" class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30 cursor-pointer shadow-lg backdrop-blur-md" title="Kawalan Suara">🎙️</button>
         </div>
@@ -87,17 +97,15 @@
       </div>
 
       <div class="p-5 space-y-4">
-        <div class="text-center space-y-2">
-          <!-- BUTANG KAMERA STABIL UNTUK IPHONE -->
-          <div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 p-6 border-2 border-emerald-500/50 flex flex-col items-center justify-center min-h-[220px] shadow-xl">
-            <div class="w-16 h-16 bg-emerald-500/20 border border-emerald-500/50 rounded-2xl flex items-center justify-center text-2xl mb-3 animate-bounce">📷</div>
-            <p class="text-xs text-slate-300 font-medium mb-4">Gunakan kamera rasmi iPhone untuk imbas QR tanpa *crash*</p>
-            <label class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:opacity-90 text-white font-bold py-3.5 px-6 rounded-2xl shadow-xl shadow-emerald-500/30 text-sm cursor-pointer transition-all transform hover:scale-105 active:scale-95 inline-block">
-              Buka Kamera Imbas QR
-              <input type="file" accept="image/*" capture="environment" id="input-kamera-ios" onchange="prosesGambarQR(this)" class="hidden">
-            </label>
+        <!-- PAPARAN KAMERA UTAMA (UNIVERSAL) -->
+        <div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 p-2">
+          <div id="reader" class="w-full min-h-[220px]"></div>
+          <div class="flex gap-2 mt-3">
+            <button onclick="mulakanKamera()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-md">Buka Kamera</button>
+            <button onclick="tutupKamera()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-md">Tutup Kamera</button>
           </div>
         </div>
+
         <details class="group border-t border-slate-800/80 pt-2" open>
           <summary class="list-none flex justify-between items-center font-semibold text-xs text-slate-400 cursor-pointer py-1 hover:text-indigo-400 transition-colors"><span>✏️ Taip ID Manual Cepat</span><span class="transition group-open:rotate-180 text-[10px]">▼</span></summary>
           <div class="mt-2">
@@ -207,6 +215,7 @@
     let dataCacheLogGlobal = [];
     let cacheBelumMasuk = [];
     let cartaInstance = null;
+    let html5QrCode = null;
     const urlAPI = "https://script.google.com/macros/s/AKfycbySgLDympazb5h_eBk-Go4oDa66GPGh25m1z4xlNND7hnI8xLwkW2dIp44jayQ2ugvLtQ/exec";
     
     function mainkanBunyi(jenis) {
@@ -232,8 +241,42 @@
         muatNaikStatistik(); 
         setInterval(muatNaikStatistik, 60000); 
         cekQueueOffline();
+        mulakanKamera();
     };
     
+    function mulakanKamera() {
+        if (html5QrCode) return;
+        html5QrCode = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+        
+        html5QrCode.start(
+            { facingMode: "environment" }, 
+            config, 
+            (decodedText) => {
+                if (!sedangMemproses) {
+                    mainkanBunyi('BERJAYA');
+                    prosesPenghantaranData(decodedText.trim());
+                }
+            },
+            (errorMessage) => {
+                // Abaikan ralat bingkai kosong semasa imbasan aktif
+            }
+        ).catch(err => {
+            console.error("Gagal memulakan kamera:", err);
+        });
+    }
+
+    function tutupKamera() {
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                html5QrCode.clear();
+                html5QrCode = null;
+            }).catch(err => {
+                html5QrCode = null;
+            });
+        }
+    }
+
     function setModPergerakan(arah) {
       statusSemasaArah = arah;
       const btnMasuk = document.getElementById("tab-masuk");
@@ -245,36 +288,6 @@
       } else {
         btnMasuk.className = "w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all transform active:scale-95";
         btnKeluar.className = "w-full py-2.5 rounded-2xl font-bold text-sm bg-red-600 text-white shadow-lg shadow-red-600/30 text-center cursor-pointer transition-all transform active:scale-95";
-      }
-    }
-
-    // FUNGSI BACA QR DARI GAMBAR YANG DIAMBIL KAMERA NATIF iOS
-    function prosesGambarQR(input) {
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const img = new Image();
-          img.onload = function () {
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            context.drawImage(img, 0, 0, img.width, img.height);
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
-            
-            if (qrCode) {
-              mainkanBunyi('BERJAYA');
-              prosesPenghantaranData(qrCode.data.trim());
-            } else {
-              mainkanBunyi('GAGAL');
-              alert("Kod QR tidak dapat dikesan pada gambar tersebut. Sila cuba tangkap semula.");
-            }
-            input.value = ""; // Reset input
-          };
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(input.files[0]);
       }
     }
     
@@ -514,12 +527,13 @@
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.setAttribute('download', `Log_Aktiviti_Live_${document.getElementById('pilih-tarikh').value}.csv`);
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        const a = document.getElementById('a');
+        const aEl = document.createElement('a');
+        aEl.href = url;
+        aEl.setAttribute('download', `Log_Aktiviti_Live_${document.getElementById('pilih-tarikh').value}.csv`);
+        document.body.appendChild(aEl);
+        aEl.click();
+        document.body.removeChild(aEl);
     }
 
     function eksportKePDF() { window.print(); }
