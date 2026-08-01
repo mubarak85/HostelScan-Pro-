@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.1 - Ultimate CyberNext</title>
+  <title>HostelScan Pro v4.2 - Ultimate CyberNext</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -52,7 +52,6 @@
       object-fit: cover !important; 
       width: 100% !important; 
       height: 100% !important; 
-      filter: contrast(1.1) brightness(1.05);
     }
   </style>
 </head>
@@ -60,7 +59,7 @@
   
   <!-- BAR STATUS OFFLINE / SYNC -->
   <div id="bar-status-offline" class="hidden max-w-7xl mx-auto mb-4 bg-amber-500/20 border border-amber-500/50 text-amber-300 px-4 py-2 rounded-2xl text-xs font-bold flex items-center justify-between shadow-lg">
-    <span class="flex items-center gap-2">⚠️ Mod Luar Talian Aktif (<span id="jumlah-queue">0</span> data tersimpan dalam baris gilir)</span>
+    <span class="flex items-center gap-2">⚠️ Mod Luar Talian Aktif (<span id="jumlah-queue">0</span> data tersimpan)</span>
     <button onclick="syncDataOffline()" class="bg-amber-500 text-slate-950 px-3 py-1 rounded-xl cursor-pointer hover:bg-amber-400 transition-all font-black">Sync Sekarang</button>
   </div>
 
@@ -69,7 +68,6 @@
     <!-- KOLOM 1: KAMERA & PENGIMBAS -->
     <div class="lg:col-span-4 cyber-card rounded-3xl shadow-2xl overflow-hidden w-full transition-all duration-500">
       <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 p-5 text-white text-center relative overflow-hidden">
-        <div class="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
         <h1 class="text-xl font-black tracking-wider uppercase drop-shadow-sm flex items-center justify-center gap-2">
           <span>⚡</span> HOSTELSCAN PRO
         </h1>
@@ -227,11 +225,10 @@
     let statusSemasaArah = "MASUK";
     let senaraiLogData = []; 
     let dataCacheLogGlobal = [];
-    let cacheBelumMasuk = []; // Untuk simpan senarai belum masuk bagi eksport Excel
+    let cacheBelumMasuk = [];
     let cartaInstance = null;
     const urlAPI = "https://script.google.com/macros/s/AKfycbySgLDympazb5h_eBk-Go4oDa66GPGh25m1z4xlNND7hnI8xLwkW2dIp44jayQ2ugvLtQ/exec";
     
-    // --- FUNGSI AUDIO & HAPTIK ---
     function mainkanBunyi(jenis) {
         if ("vibrate" in navigator) {
             navigator.vibrate(jenis === 'BERJAYA' ? [100, 50, 100] : [300]);
@@ -283,20 +280,13 @@
     }
     
     function jalankanKamera(facingModeTarget) {
-      const screenWidth = window.innerWidth;
-      const qrBoxSize = screenWidth > 600 ? 350 : 250;
-
+      // Diturunkan kepada 10 fps dan saiz lebih ringan untuk elakkan crash RAM pada iOS
       html5QrCode.start(
         { facingMode: facingModeTarget }, 
         { 
-          fps: 25, 
-          qrbox: { width: qrBoxSize, height: qrBoxSize },
-          aspectRatio: 1.0,
-          videoConstraints: {
-            facingMode: facingModeTarget,
-            focusMode: "continuous",
-            advanced: [{ focusMode: "continuous" }]
-          }
+          fps: 10, 
+          qrbox: { width: 220, height: 220 },
+          aspectRatio: 1.0
         },
         (decodedText) => { 
           if (!sedangMemproses) { 
@@ -346,7 +336,6 @@
       }
     }
 
-    // --- OFFLINE SYNC SYSTEM ---
     function simpanQueueOffline(id, arah, kesalahan) {
         let queue = JSON.parse(localStorage.getItem('hostelQueue') || '[]');
         queue.push({ id: id, arah: arah, kesalahan: kesalahan, masa: new Date().toISOString() });
@@ -385,7 +374,6 @@
         });
     }
 
-    // --- VOICE COMMAND ---
     let recognition;
     function toggleSuaraVoice() {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -419,7 +407,6 @@
         try { document.getElementById('btn-suara').classList.remove('animate-spin', 'bg-indigo-500'); } catch(e){}
     }
 
-    // --- PENCARIAN PANTAS GLOBAL ---
     function tapisLogGlobal() {
         const keyword = document.getElementById('carian-global').value.toLowerCase();
         const sidebar = document.getElementById("sidebar-log-pergerakan");
@@ -459,7 +446,6 @@
         }
     }
 
-    // --- FUNGSI MUAT NAIK STATISTIK & PAPARAN UI ---
     function muatNaikStatistik() {
         const tarikhPilih = document.getElementById('pilih-tarikh').value;
         fetch(urlAPI + "?tarikh=" + tarikhPilih)
@@ -467,14 +453,12 @@
         .then(data => {
             if(data.error) return;
             
-            // Statistik Keseluruhan
             document.getElementById('stat-total').innerText = data.keseluruhan.total;
             document.getElementById('stat-masuk').innerText = data.keseluruhan.masuk;
             document.getElementById('stat-keluar').innerText = data.keseluruhan.keluar;
             document.getElementById('stat-baki-masuk').innerText = data.keseluruhan.bakiMasuk;
             document.getElementById('stat-baki-keluar').innerText = data.keseluruhan.bakiKeluar;
 
-            // Ringkasan Tingkatan
             const tBodyTing = document.getElementById('jadual-tingkatan');
             tBodyTing.innerHTML = "";
             if(data.ringkasanTingkatan && data.ringkasanTingkatan.length > 0) {
@@ -492,7 +476,6 @@
                 tBodyTing.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-500">Tiada data tingkatan.</td></tr>`;
             }
 
-            // Pelajar Belum Masuk
             cacheBelumMasuk = data.belumMasuk || [];
             const tBodyBelum = document.getElementById('jadual-belum-masuk');
             tBodyBelum.innerHTML = "";
@@ -512,14 +495,12 @@
                 tBodyBelum.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-emerald-400 font-semibold">Syabas! Semua pelajar telah masuk.</td></tr>`;
             }
 
-            // Log Pergerakan Live
             dataCacheLogGlobal = data.logTerkini || [];
             tapisLogGlobal();
         })
         .catch(err => console.error("Ralat muat data:", err));
     }
 
-    // --- FUNGSI EKSPORT EXCEL (DIAKTIFKAN) ---
     function eksportKeExcel() {
         if (!cacheBelumMasuk || cacheBelumMasuk.length === 0) {
             alert("Tiada senarai pelajar belum masuk untuk dieksport.");
@@ -574,15 +555,9 @@
         document.body.removeChild(a);
     }
 
-    function eksportKePDF() {
-        window.print();
-    }
-    
-    function eksportLogPDF() {
-        window.print();
-    }
+    function eksportKePDF() { window.print(); }
+    function eksportLogPDF() { window.print(); }
 
-    // --- MODAL CARTA CHART.JS ---
     function bukaGrafModal() {
         document.getElementById('modal-graf').classList.remove('hidden');
         renderGrafTrend();
