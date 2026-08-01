@@ -418,28 +418,36 @@
         try { document.getElementById('btn-suara').classList.remove('animate-spin', 'bg-indigo-500'); } catch(e){}
     }
 
-    // --- PENCARIAN PANTAS GLOBAL ---
+    // --- PENCARIAN PANTAS GLOBAL (DENGAN FALLBACK MENYELURUH) ---
     function tapisLogGlobal() {
         const keyword = document.getElementById('carian-global').value.toLowerCase();
         const sidebar = document.getElementById("sidebar-log-pergerakan");
         sidebar.innerHTML = "";
         
-        const filtered = dataCacheLogGlobal.filter(item => 
-            item.nama.toLowerCase().includes(keyword) || 
-            item.kelas.toLowerCase().includes(keyword) || 
-            item.dorm.toLowerCase().includes(keyword)
-        );
+        const filtered = dataCacheLogGlobal.filter(item => {
+            const nama = (item.nama || "").toLowerCase();
+            const kelas = (item.kelas || item.tingkatan || "").toLowerCase();
+            const dorm = (item.dorm || "").toLowerCase();
+            return nama.includes(keyword) || kelas.includes(keyword) || dorm.includes(keyword);
+        });
 
         if (filtered.length > 0) {
             filtered.forEach(item => {
-                const warnaBg = (item.arah === 'MASUK') ? 'bg-emerald-950/20 border-emerald-900/40 text-emerald-200' : 'bg-red-950/20 border-red-900/40 text-red-200';
-                const ikonArah = (item.arah === 'MASUK') ? '📥 MASUK' : '📤 KELUAR';
+                const arahItem = (item.arah || item.arahPergerakan || "MASUK").toUpperCase();
+                const warnaBg = (arahItem === 'MASUK') ? 'bg-emerald-950/20 border-emerald-900/40 text-emerald-200' : 'bg-red-950/20 border-red-900/40 text-red-200';
+                const ikonArah = (arahItem === 'MASUK') ? '📥 MASUK' : '📤 KELUAR';
+                const namaPelajar = item.nama || "Tanpa Nama";
+                const kelasPelajar = item.kelas || item.tingkatan || "-";
+                const tingPelajar = item.tingkatan || item.ting || "-";
+                const dormPelajar = item.dorm || "-";
+                const masaLog = item.masa || item.timestamp || "-";
+
                 sidebar.innerHTML += `
                   <div class="p-3.5 rounded-2xl border ${warnaBg} shadow-xs flex items-center justify-between transition-all hover:translate-x-1">
                     <div>
-                      <p class="font-bold text-xs text-slate-200">${item.nama}</p>
-                      <p class="text-[11px] text-slate-400 font-medium">Kelas: ${item.kelas} • Ting: ${item.tingkatan}</p>
-                      <p class="text-[11px] text-slate-500">Dorm: <span class="font-semibold text-indigo-400">${item.dorm}</span> • <span class="font-mono text-[10px]">${item.masa}</span></p>
+                      <p class="font-bold text-xs text-slate-200">${namaPelajar}</p>
+                      <p class="text-[11px] text-slate-400 font-medium">Kelas: ${kelasPelajar} • Ting: ${tingPelajar}</p>
+                      <p class="text-[11px] text-slate-500">Dorm: <span class="font-semibold text-indigo-400">${dormPelajar}</span> • <span class="font-mono text-[10px]">${masaLog}</span></p>
                     </div>
                     <span class="text-[10px] px-2 py-1 rounded-xl font-black uppercase bg-slate-900 text-slate-200 border border-slate-700 shadow-xs">${ikonArah}</span>
                   </div>
@@ -568,31 +576,45 @@
       fetch(`${urlAPI}?tarikh=${tarikh}&t=${new Date().getTime()}`)
       .then(res => res.json())
       .then(data => {
-        if (!data || !data.keseluruhan) return;
+        if (!data) return;
         
-        document.getElementById("stat-total").innerText = data.keseluruhan.total || 0;
-        document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk || 0;
-        document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar || 0;
-        document.getElementById("stat-baki-masuk").innerText = data.keseluruhan.bakiMasuk || 0;
-        document.getElementById("stat-baki-keluar").innerText = data.keseluruhan.bakiKeluar || 0;
-
-        dataCacheLogGlobal = data.logTerkini || [];
-        tapisLogGlobal();
-
-        const tbodyTing = document.getElementById("jadual-tingkatan");
-        tbodyTing.innerHTML = "";
-        if (data.ringkasanTingkatan && data.ringkasanTingkatan.length > 0) {
-          data.ringkasanTingkatan.forEach(row => {
-            tbodyTing.innerHTML += `<tr><td class="p-2 font-bold">${row.ting}</td><td class="p-2 text-center">${row.total}</td><td class="p-2 text-center text-emerald-400">${row.masuk}</td><td class="p-2 text-center text-rose-400">${row.keluar}</td></tr>`;
-          });
+        // Bahagian Keseluruhan Analisis
+        if (data.keseluruhan) {
+          document.getElementById("stat-total").innerText = data.keseluruhan.total || 0;
+          document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk || 0;
+          document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar || 0;
+          document.getElementById("stat-baki-masuk").innerText = data.keseluruhan.bakiMasuk || 0;
+          document.getElementById("stat-baki-keluar").innerText = data.keseluruhan.bakiKeluar || 0;
         }
 
+        // Menyokong pelbagai variasi nama kunci log dari Apps Script (logTerkini, log, aktiviti)
+        dataCacheLogGlobal = data.logTerkini || data.log || data.aktiviti || [];
+        tapisLogGlobal();
+
+        // Ringkasan Tingkatan (Menyokong pelbagai variasi kunci data tingkatan)
+        const tbodyTing = document.getElementById("jadual-tingkatan");
+        tbodyTing.innerHTML = "";
+        let arrayTingkatan = data.ringkasanTingkatan || data.ringkasan || data.tingkatan || [];
+        if (arrayTingkatan.length > 0) {
+          arrayTingkatan.forEach(row => {
+            let namaTing = row.ting || row.tingkatan || row.kelas || "-";
+            let totalTing = row.total || row.jumlah || 0;
+            let masukTing = row.masuk || 0;
+            let keluarTing = row.keluar || 0;
+            tbodyTing.innerHTML += `<tr><td class="p-2 font-bold">${namaTing}</td><td class="p-2 text-center">${totalTing}</td><td class="p-2 text-center text-emerald-400">${masukTing}</td><td class="p-2 text-center text-rose-400">${keluarTing}</td></tr>`;
+          });
+        } else {
+          tbodyTing.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 italic">Tiada data ringkasan untuk tarikh ini.</td></tr>`;
+        }
+
+        // Pelajar Belum Masuk
         const tbodyBelum = document.getElementById("jadual-belum-masuk");
         tbodyBelum.innerHTML = "";
-        if (data.belumMasuk && data.belumMasuk.length > 0) {
-          data.belumMasuk.forEach(p => {
+        let arrayBelum = data.belumMasuk || data.pelajarBelumMasuk || [];
+        if (arrayBelum && arrayBelum.length > 0) {
+          arrayBelum.forEach(p => {
             let nilaiTingkatan = p.ting || p.tingkatan || p.kelas || "-";
-            tbodyBelum.innerHTML += `<tr><td class="p-3 font-bold">${p.nama}</td><td class="p-3 text-center">${nilaiTingkatan}</td><td class="p-3 text-center">${p.dorm || "-"}</td><td class="p-3 text-center text-rose-400 font-bold">Belum Masuk</td></tr>`;
+            tbodyBelum.innerHTML += `<tr><td class="p-3 font-bold">${p.nama || "-"}</td><td class="p-3 text-center">${nilaiTingkatan}</td><td class="p-3 text-center">${p.dorm || "-"}</td><td class="p-3 text-center text-rose-400 font-bold">Belum Masuk</td></tr>`;
           });
         } else {
           tbodyBelum.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 italic">Semua pelajar telah mendaftar masuk!</td></tr>`;
