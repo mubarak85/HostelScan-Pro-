@@ -3,35 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.2 - Ultimate CyberNext</title>
+  <title>HostelScan Pro v4.3 - iOS Stable</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <style>
     @keyframes pulse-glow {
       0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
       50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.8); }
-    }
-    @keyframes breathing-masuk {
-      0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); border-color: rgba(16, 185, 129, 0.6); }
-      50% { box-shadow: 0 0 45px rgba(16, 185, 129, 0.8); border-color: rgba(16, 185, 129, 1); }
-    }
-    @keyframes breathing-keluar {
-      0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); border-color: rgba(239, 68, 68, 0.6); }
-      50% { box-shadow: 0 0 45px rgba(239, 68, 68, 0.8); border-color: rgba(239, 68, 68, 1); }
     }
     .cyber-card {
       background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.7) 100%);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.08);
       animation: pulse-glow 4s infinite ease-in-out;
-    }
-    .bingkai-masuk-aktif {
-      animation: breathing-masuk 3s infinite ease-in-out !important;
-    }
-    .bingkai-keluar-aktif {
-      animation: breathing-keluar 3s infinite ease-in-out !important;
     }
     .glass-input {
       background: rgba(2, 6, 23, 0.8);
@@ -47,11 +33,6 @@
       #elemen-cetak-padam, .lg\:col-span-4-kamera, #kad-tarikh, #kad-analisa, #kad-ringkasan, #kad-belum-masuk, .butang-aksi { display: none !important; }
       .lg\:col-span-4-sidebar { width: 100% !important; border: none !important; box-shadow: none !important; }
       .tabel-cetak { border: 1px solid #000 !important; }
-    }
-    #reader video { 
-      object-fit: cover !important; 
-      width: 100% !important; 
-      height: 100% !important; 
     }
   </style>
 </head>
@@ -71,10 +52,9 @@
         <h1 class="text-xl font-black tracking-wider uppercase drop-shadow-sm flex items-center justify-center gap-2">
           <span>⚡</span> HOSTELSCAN PRO
         </h1>
-        <p class="text-xs text-blue-100/90 font-medium mt-1">Terminal Imbasan Pintar Biometrik/QR</p>
+        <p class="text-xs text-blue-100/90 font-medium mt-1">Terminal Imbasan iOS Dioptimumkan</p>
         <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
           <button id="btn-suara" onclick="toggleSuaraVoice()" class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30 cursor-pointer shadow-lg backdrop-blur-md" title="Kawalan Suara">🎙️</button>
-          <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30 cursor-pointer shadow-lg backdrop-blur-md">🔄</button>
         </div>
       </div>
 
@@ -108,12 +88,14 @@
 
       <div class="p-5 space-y-4">
         <div class="text-center space-y-2">
-          <div id="bingkai-kamera" class="relative w-full rounded-2xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 bingkai-masuk-aktif flex items-center justify-center transition-all duration-300">
-            <div id="reader" class="w-full h-full"></div>
-            <div id="overlay-mula" class="absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-50">
-              <div class="w-16 h-16 bg-emerald-500/20 border border-emerald-500/50 rounded-2xl flex items-center justify-center text-2xl mb-4 animate-bounce">📷</div>
-              <button onclick="mulaKameraGitHub()" class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:opacity-90 text-white font-bold py-3.5 px-6 rounded-2xl shadow-xl shadow-emerald-500/30 text-sm cursor-pointer transition-all transform hover:scale-105 active:scale-95">Aktifkan Kamera Live</button>
-            </div>
+          <!-- BUTANG KAMERA STABIL UNTUK IPHONE -->
+          <div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 p-6 border-2 border-emerald-500/50 flex flex-col items-center justify-center min-h-[220px] shadow-xl">
+            <div class="w-16 h-16 bg-emerald-500/20 border border-emerald-500/50 rounded-2xl flex items-center justify-center text-2xl mb-3 animate-bounce">📷</div>
+            <p class="text-xs text-slate-300 font-medium mb-4">Gunakan kamera rasmi iPhone untuk imbas QR tanpa *crash*</p>
+            <label class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:opacity-90 text-white font-bold py-3.5 px-6 rounded-2xl shadow-xl shadow-emerald-500/30 text-sm cursor-pointer transition-all transform hover:scale-105 active:scale-95 inline-block">
+              Buka Kamera Imbas QR
+              <input type="file" accept="image/*" capture="environment" id="input-kamera-ios" onchange="prosesGambarQR(this)" class="hidden">
+            </label>
           </div>
         </div>
         <details class="group border-t border-slate-800/80 pt-2" open>
@@ -219,9 +201,7 @@
   </div>
 
   <script>
-    let html5QrCode; 
     let sedangMemproses = false; 
-    let modKameraSekarang = "environment"; 
     let statusSemasaArah = "MASUK";
     let senaraiLogData = []; 
     let dataCacheLogGlobal = [];
@@ -258,56 +238,43 @@
       statusSemasaArah = arah;
       const btnMasuk = document.getElementById("tab-masuk");
       const btnKeluar = document.getElementById("tab-keluar");
-      const bingkai = document.getElementById("bingkai-kamera");
 
       if (arah === 'MASUK') {
         btnMasuk.className = "w-full py-2.5 rounded-2xl font-bold text-sm bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 text-center cursor-pointer transition-all transform active:scale-95";
         btnKeluar.className = "w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all transform active:scale-95";
-        bingkai.className = "relative w-full rounded-2xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 bingkai-masuk-aktif flex items-center justify-center transition-all duration-300";
       } else {
         btnMasuk.className = "w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all transform active:scale-95";
         btnKeluar.className = "w-full py-2.5 rounded-2xl font-bold text-sm bg-red-600 text-white shadow-lg shadow-red-600/30 text-center cursor-pointer transition-all transform active:scale-95";
-        bingkai.className = "relative w-full rounded-2xl overflow-hidden bg-black min-h-[280px] border-2 border-red-500 bingkai-keluar-aktif flex items-center justify-center transition-all duration-300";
       }
     }
-    
-    function mulaKameraGitHub() { 
-      document.getElementById('overlay-mula').style.display = 'none'; 
-      if(!html5QrCode) {
-        html5QrCode = new Html5Qrcode("reader", false); 
-      }
-      jalankanKamera(modKameraSekarang); 
-    }
-    
-    function jalankanKamera(facingModeTarget) {
-      // Diturunkan kepada 10 fps dan saiz lebih ringan untuk elakkan crash RAM pada iOS
-      html5QrCode.start(
-        { facingMode: facingModeTarget }, 
-        { 
-          fps: 10, 
-          qrbox: { width: 220, height: 220 },
-          aspectRatio: 1.0
-        },
-        (decodedText) => { 
-          if (!sedangMemproses) { 
-            mainkanBunyi('BERJAYA'); 
-            prosesPenghantaranData(decodedText.trim()); 
-          } 
-        }, 
-        (err) => {}
-      ).then(() => { 
-        document.getElementById("btn-tukar-kamera").classList.remove("hidden"); 
-      }).catch(err => { 
-        alert("Kamera gagal diakses. Sila pastikan kebenaran kamera telah diberi."); 
-      });
-    }
-    
-    function tukarKamera() { 
-      if(html5QrCode && html5QrCode.isScanning) {
-        html5QrCode.stop().then(() => { 
-          modKameraSekarang = (modKameraSekarang === "environment") ? "user" : "environment"; 
-          jalankanKamera(modKameraSekarang); 
-        }); 
+
+    // FUNGSI BACA QR DARI GAMBAR YANG DIAMBIL KAMERA NATIF iOS
+    function prosesGambarQR(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            context.drawImage(img, 0, 0, img.width, img.height);
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+            
+            if (qrCode) {
+              mainkanBunyi('BERJAYA');
+              prosesPenghantaranData(qrCode.data.trim());
+            } else {
+              mainkanBunyi('GAGAL');
+              alert("Kod QR tidak dapat dikesan pada gambar tersebut. Sila cuba tangkap semula.");
+            }
+            input.value = ""; // Reset input
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
       }
     }
     
