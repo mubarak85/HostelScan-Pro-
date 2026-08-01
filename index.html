@@ -227,6 +227,7 @@
     let statusSemasaArah = "MASUK";
     let senaraiLogData = []; 
     let dataCacheLogGlobal = [];
+    let cacheBelumMasuk = []; // Untuk simpan senarai belum masuk bagi eksport Excel
     let cartaInstance = null;
     const urlAPI = "https://script.google.com/macros/s/AKfycbySgLDympazb5h_eBk-Go4oDa66GPGh25m1z4xlNND7hnI8xLwkW2dIp44jayQ2ugvLtQ/exec";
     
@@ -418,7 +419,7 @@
         try { document.getElementById('btn-suara').classList.remove('animate-spin', 'bg-indigo-500'); } catch(e){}
     }
 
-    // --- PENCARIAN PANTAS GLOBAL (DENGAN FALLBACK MENYELURUH) ---
+    // --- PENCARIAN PANTAS GLOBAL ---
     function tapisLogGlobal() {
         const keyword = document.getElementById('carian-global').value.toLowerCase();
         const sidebar = document.getElementById("sidebar-log-pergerakan");
@@ -456,6 +457,129 @@
         } else {
             sidebar.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-6">Tiada rekod sepadan dijumpai.</p>`;
         }
+    }
+
+    // --- FUNGSI MUAT NAIK STATISTIK & PAPARAN UI ---
+    function muatNaikStatistik() {
+        const tarikhPilih = document.getElementById('pilih-tarikh').value;
+        fetch(urlAPI + "?tarikh=" + tarikhPilih)
+        .then(res => res.json())
+        .then(data => {
+            if(data.error) return;
+            
+            // Statistik Keseluruhan
+            document.getElementById('stat-total').innerText = data.keseluruhan.total;
+            document.getElementById('stat-masuk').innerText = data.keseluruhan.masuk;
+            document.getElementById('stat-keluar').innerText = data.keseluruhan.keluar;
+            document.getElementById('stat-baki-masuk').innerText = data.keseluruhan.bakiMasuk;
+            document.getElementById('stat-baki-keluar').innerText = data.keseluruhan.bakiKeluar;
+
+            // Ringkasan Tingkatan
+            const tBodyTing = document.getElementById('jadual-tingkatan');
+            tBodyTing.innerHTML = "";
+            if(data.ringkasanTingkatan && data.ringkasanTingkatan.length > 0) {
+                data.ringkasanTingkatan.forEach(row => {
+                    tBodyTing.innerHTML += `
+                        <tr class="hover:bg-slate-900/40">
+                            <td class="p-2 font-bold text-slate-300">${row.ting}</td>
+                            <td class="p-2 text-center font-semibold text-slate-400">${row.total}</td>
+                            <td class="p-2 text-center font-semibold text-emerald-400">${row.masuk}</td>
+                            <td class="p-2 text-center font-semibold text-rose-400">${row.keluar}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tBodyTing.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-500">Tiada data tingkatan.</td></tr>`;
+            }
+
+            // Pelajar Belum Masuk
+            cacheBelumMasuk = data.belumMasuk || [];
+            const tBodyBelum = document.getElementById('jadual-belum-masuk');
+            tBodyBelum.innerHTML = "";
+            if(cacheBelumMasuk.length > 0) {
+                cacheBelumMasuk.forEach(p => {
+                    const statusWarna = p.statusTerakhir === 'KELUAR' ? 'text-rose-400 bg-rose-950/30' : 'text-amber-400 bg-amber-950/30';
+                    tBodyBelum.innerHTML += `
+                        <tr class="hover:bg-slate-900/40">
+                            <td class="p-3 font-medium text-slate-200">${p.nama}</td>
+                            <td class="p-3 text-center text-slate-400">${p.tingkatan}</td>
+                            <td class="p-3 text-center text-indigo-400 font-semibold">${p.dorm}</td>
+                            <td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-black ${statusWarna}">${p.statusTerakhir}</span></td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tBodyBelum.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-emerald-400 font-semibold">Syabas! Semua pelajar telah masuk.</td></tr>`;
+            }
+
+            // Log Pergerakan Live
+            dataCacheLogGlobal = data.logTerkini || [];
+            tapisLogGlobal();
+        })
+        .catch(err => console.error("Ralat muat data:", err));
+    }
+
+    // --- FUNGSI EKSPORT EXCEL (DIAKTIFKAN) ---
+    function eksportKeExcel() {
+        if (!cacheBelumMasuk || cacheBelumMasuk.length === 0) {
+            alert("Tiada senarai pelajar belum masuk untuk dieksport.");
+            return;
+        }
+
+        let csvContent = "\uFEFFNama Pelajar,Tingkatan,Dorm,Status Terakhir\n";
+        cacheBelumMasuk.forEach(p => {
+            let nama = `"${(p.nama || "").replace(/"/g, '""')}"`;
+            let tingkatan = `"${(p.tingkatan || "").replace(/"/g, '""')}"`;
+            let dorm = `"${(p.dorm || "").replace(/"/g, '""')}"`;
+            let status = `"${(p.statusTerakhir || "").replace(/"/g, '""')}"`;
+            csvContent += `${nama},${tingkatan},${dorm},${status}\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.setAttribute('download', `Senarai_Belum_Masuk_${document.getElementById('pilih-tarikh').value}.csv`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    function eksportLogExcel() {
+        if (!dataCacheLogGlobal || dataCacheLogGlobal.length === 0) {
+            alert("Tiada rekod log aktiviti untuk dieksport.");
+            return;
+        }
+
+        let csvContent = "\uFEFFID,Nama,Tingkatan,Kelas,Dorm,Arah,Kesalahan,Masa\n";
+        dataCacheLogGlobal.forEach(l => {
+            let id = `"${(l.id || "").replace(/"/g, '""')}"`;
+            let nama = `"${(l.nama || "").replace(/"/g, '""')}"`;
+            let ting = `"${(l.tingkatan || "").replace(/"/g, '""')}"`;
+            let kelas = `"${(l.kelas || "").replace(/"/g, '""')}"`;
+            let dorm = `"${(l.dorm || "").replace(/"/g, '""')}"`;
+            let arah = `"${(l.arah || "").replace(/"/g, '""')}"`;
+            let kesalahan = `"${(l.kesalahan || "").replace(/"/g, '""')}"`;
+            let masa = `"${(l.masa || "").replace(/"/g, '""')}"`;
+            csvContent += `${id},${nama},${ting},${kelas},${dorm},${arah},${kesalahan},${masa}\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.setAttribute('download', `Log_Aktiviti_Live_${document.getElementById('pilih-tarikh').value}.csv`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    function eksportKePDF() {
+        window.print();
+    }
+    
+    function eksportLogPDF() {
+        window.print();
     }
 
     // --- MODAL CARTA CHART.JS ---
@@ -563,70 +687,13 @@
       .catch(err => {
         clearTimeout(timeoutId);
         simpanQueueOffline(id, statusSemasaArah, teksKesalahan);
-        mainkanBunyi('GAGAL');
+        mainkanBunyi('BERJAYA');
         lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-950 text-amber-400 border border-amber-900 shadow-md";
-        lencana.innerText = "Rangkaian Gagal - Masuk Queue Offline";
+        lencana.innerText = "Ralat Rangkaian - Disimpan Offline";
         document.querySelectorAll('input[name="kesalahan"]').forEach((cb) => cb.checked = false);
-        setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2500);
+        setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
       });
     }
-
-    function muatNaikStatistik() {
-      const tarikh = document.getElementById("pilih-tarikh").value;
-      fetch(`${urlAPI}?tarikh=${tarikh}&t=${new Date().getTime()}`)
-      .then(res => res.json())
-      .then(data => {
-        if (!data) return;
-        
-        // Bahagian Keseluruhan Analisis
-        if (data.keseluruhan) {
-          document.getElementById("stat-total").innerText = data.keseluruhan.total || 0;
-          document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk || 0;
-          document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar || 0;
-          document.getElementById("stat-baki-masuk").innerText = data.keseluruhan.bakiMasuk || 0;
-          document.getElementById("stat-baki-keluar").innerText = data.keseluruhan.bakiKeluar || 0;
-        }
-
-        // Menyokong pelbagai variasi nama kunci log dari Apps Script
-        dataCacheLogGlobal = data.logTerkini || data.log || data.aktiviti || [];
-        tapisLogGlobal();
-
-        // Ringkasan Tingkatan (Menyokong pelbagai variasi kunci data tingkatan)
-        const tbodyTing = document.getElementById("jadual-tingkatan");
-        tbodyTing.innerHTML = "";
-        let arrayTingkatan = data.ringkasanTingkatan || data.ringkasan || data.tingkatan || [];
-        if (arrayTingkatan.length > 0) {
-          arrayTingkatan.forEach(row => {
-            let namaTing = row.ting || row.tingkatan || row.kelas || "-";
-            let totalTing = row.total || row.jumlah || 0;
-            let masukTing = row.masuk || 0;
-            let keluarTing = row.keluar || 0;
-            tbodyTing.innerHTML += `<tr><td class="p-2 font-bold">${namaTing}</td><td class="p-2 text-center">${totalTing}</td><td class="p-2 text-center text-emerald-400">${masukTing}</td><td class="p-2 text-center text-rose-400">${keluarTing}</td></tr>`;
-          });
-        } else {
-          tbodyTing.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 italic">Tiada data ringkasan untuk tarikh ini.</td></tr>`;
-        }
-
-        // Pelajar Belum Masuk
-        const tbodyBelum = document.getElementById("jadual-belum-masuk");
-        tbodyBelum.innerHTML = "";
-        let arrayBelum = data.belumMasuk || data.pelajarBelumMasuk || [];
-        if (arrayBelum && arrayBelum.length > 0) {
-          arrayBelum.forEach(p => {
-            let nilaiTingkatan = p.ting || p.tingkatan || p.kelas || "-";
-            tbodyBelum.innerHTML += `<tr><td class="p-3 font-bold">${p.nama || "-"}</td><td class="p-3 text-center">${nilaiTingkatan}</td><td class="p-3 text-center">${p.dorm || "-"}</td><td class="p-3 text-center text-rose-400 font-bold">Belum Masuk</td></tr>`;
-          });
-        } else {
-          tbodyBelum.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 italic">Semua pelajar telah mendaftar masuk!</td></tr>`;
-        }
-      })
-      .catch(err => console.error("Ralat memuat data:", err));
-    }
-
-    function eksportLogExcel() { alert("Fungsi Eksport Log Excel diaktifkan."); }
-    function eksportLogPDF() { window.print(); }
-    function eksportKeExcel() { alert("Fungsi Eksport Senarai Belum Masuk Excel diaktifkan."); }
-    function eksportKePDF() { window.print(); }
   </script>
 </body>
 </html>
