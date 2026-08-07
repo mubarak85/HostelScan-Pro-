@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.4 - Universal Cross-Platform</title>
+  <title>HostelScan Pro v4.5 - Universal Cross-Platform</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -194,6 +194,7 @@
         </div>
       </div>
 
+      <!-- KAD PELAJAR BELUM MASUK (DIKEMAS KINI DENGAN LAJUR KELAS) -->
       <div id="kad-belum-masuk" class="cyber-card p-6 rounded-3xl shadow-2xl">
         <div class="border-b border-slate-800 pb-3 mb-4 flex items-center justify-between">
           <h2 class="font-bold text-rose-400 text-base flex items-center gap-2"><span>⚠️</span> Pelajar Belum Masuk</h2>
@@ -202,7 +203,20 @@
             <button onclick="eksportKePDF()" class="bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 text-xs font-bold py-1.5 px-3 rounded-xl cursor-pointer transition-all">📄 PDF</button>
           </div>
         </div>
-        <div class="overflow-x-auto"><table class="w-full text-left border-collapse tabel-cetak"><thead class="bg-slate-950 text-slate-400 text-xs uppercase font-bold"><tr><th class="p-3 rounded-l-xl">Nama</th><th class="p-3 text-center">Ting.</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center rounded-r-xl">Status</th></tr></thead><tbody id="jadual-belum-masuk" class="text-xs divide-y divide-slate-800/40"></tbody></table></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse tabel-cetak">
+            <thead class="bg-slate-950 text-slate-400 text-xs uppercase font-bold">
+              <tr>
+                <th class="p-3 rounded-l-xl">Nama</th>
+                <th class="p-3 text-center">Ting.</th>
+                <th class="p-3 text-center">Kelas</th>
+                <th class="p-3 text-center">Dorm</th>
+                <th class="p-3 text-center rounded-r-xl">Status</th>
+              </tr>
+            </thead>
+            <tbody id="jadual-belum-masuk" class="text-xs divide-y divide-slate-800/40"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -220,7 +234,7 @@
     </div>
   </div>
 
-  <!-- TEMPLAT RASMI LAPORAN CETAKAN (AKAN DIPAPARKAN MASA PRINT SAHAJA) -->
+  <!-- TEMPLAT RASMI LAPORAN CETAKAN (DIKEMAS KINI DENGAN LAJUR KELAS) -->
   <div id="seksyen-laporan-rasmi">
     <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
       <h2 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">LAPORAN RASMI ANALISA KEHADIRAN & PERGERAKAN PELAJAR ASRAMA</h2>
@@ -272,6 +286,7 @@
           <th>Bil</th>
           <th>Nama Pelajar</th>
           <th>Tingkatan</th>
+          <th>Kelas</th>
           <th>Dorm</th>
           <th>Status Terakhir</th>
         </tr>
@@ -492,7 +507,7 @@
                 const warnaBg = (arahItem === 'MASUK') ? 'bg-emerald-950/20 border-emerald-900/40 text-emerald-200' : 'bg-red-950/20 border-red-900/40 text-red-200';
                 const ikonArah = (arahItem === 'MASUK') ? '📥 MASUK' : '📤 KELUAR';
                 const namaPelajar = item.nama || "Tanpa Nama";
-                const kelasPelajar = item.kelas || item.tingkatan || "-";
+                const kelasPelajar = item.kelas || "-";
                 const tingPelajar = item.tingkatan || item.ting || "-";
                 const dormPelajar = item.dorm || "-";
                 const masaLog = item.masa || item.timestamp || "-";
@@ -550,17 +565,19 @@
             if(cacheBelumMasuk.length > 0) {
                 cacheBelumMasuk.forEach(p => {
                     const statusWarna = p.statusTerakhir === 'KELUAR' ? 'text-rose-400 bg-rose-950/30' : 'text-amber-400 bg-amber-950/30';
+                    const namaKelas = p.kelas || p.namaKelas || '-';
                     tBodyBelum.innerHTML += `
                         <tr class="hover:bg-slate-900/40">
                             <td class="p-3 font-medium text-slate-200">${p.nama}</td>
                             <td class="p-3 text-center text-slate-400">${p.tingkatan}</td>
+                            <td class="p-3 text-center text-slate-300 font-semibold">${namaKelas}</td>
                             <td class="p-3 text-center text-indigo-400 font-semibold">${p.dorm}</td>
                             <td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-black ${statusWarna}">${p.statusTerakhir}</span></td>
                         </tr>
                     `;
                 });
             } else {
-                tBodyBelum.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-emerald-400 font-semibold">Syabas! Semua pelajar telah masuk.</td></tr>`;
+                tBodyBelum.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-emerald-400 font-semibold">Syabas! Semua pelajar telah masuk.</td></tr>`;
             }
 
             dataCacheLogGlobal = data.logTerkini || [];
@@ -598,23 +615,25 @@
             rasmiTing.innerHTML = `<tr><td colspan="4" style="text-align:center;">Tiada data rekod tingkatan.</td></tr>`;
         }
 
-        // Populate Pelajar Belum Masuk
+        // Populate Pelajar Belum Masuk (Termasuk Lajur Kelas)
         const rasmiBelum = document.getElementById('rasmi-jadual-belum-masuk');
         rasmiBelum.innerHTML = "";
         if (cacheBelumMasuk.length > 0) {
             cacheBelumMasuk.forEach((p, idx) => {
+                const namaKelas = p.kelas || p.namaKelas || '-';
                 rasmiBelum.innerHTML += `
                     <tr>
                         <td style="text-align:center;">${idx + 1}</td>
                         <td>${p.nama}</td>
                         <td style="text-align:center;">${p.tingkatan}</td>
+                        <td style="text-align:center;">${namaKelas}</td>
                         <td style="text-align:center;">${p.dorm}</td>
                         <td style="text-align:center;">${p.statusTerakhir}</td>
                     </tr>
                 `;
             });
         } else {
-            rasmiBelum.innerHTML = `<tr><td colspan="5" style="text-align:center; font-weight:bold; color:green;">Semua pelajar telah masuk ke asrama.</td></tr>`;
+            rasmiBelum.innerHTML = `<tr><td colspan="6" style="text-align:center; font-weight:bold; color:green;">Semua pelajar telah masuk ke asrama.</td></tr>`;
         }
 
         // Cetak
@@ -627,13 +646,14 @@
             return;
         }
 
-        let csvContent = "\uFEFFNama Pelajar,Tingkatan,Dorm,Status Terakhir\n";
+        let csvContent = "\uFEFFNama Pelajar,Tingkatan,Kelas,Dorm,Status Terakhir\n";
         cacheBelumMasuk.forEach(p => {
             let nama = `"${(p.nama || "").replace(/"/g, '""')}"`;
             let tingkatan = `"${(p.tingkatan || "").replace(/"/g, '""')}"`;
+            let kelas = `"${(p.kelas || p.namaKelas || "").replace(/"/g, '""')}"`;
             let dorm = `"${(p.dorm || "").replace(/"/g, '""')}"`;
             let status = `"${(p.statusTerakhir || "").replace(/"/g, '""')}"`;
-            csvContent += `${nama},${tingkatan},${dorm},${status}\n`;
+            csvContent += `${nama},${tingkatan},${kelas},${dorm},${status}\n`;
         });
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
