@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>HostelScan Pro v4.5 - Universal Cross-Platform</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  
+  <!-- CDN Tailwind CSS & Library Pihak Ketiga -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Pustaka rasmi html5-qrcode versi stabil -->
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
   <style>
     @keyframes pulse-glow {
       0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
@@ -83,7 +85,7 @@
       <!-- KOTAK PILIHAN KESALAHAN DISIPLIN -->
       <div class="p-4 bg-slate-900/60 border-b border-slate-800/80 space-y-2">
         <p class="text-xs font-bold text-rose-400 uppercase tracking-wider">⚠️ Rekod Salahlaku (Jika Ada):</p>
-        <div class="grid grid-cols-3 gap-2 text-xs">
+        <div class="grid grid-cols-2 gap-2 text-xs">
           <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
             <input type="checkbox" name="kesalahan" value="Tak Pakai Kasut" class="rounded accent-rose-500">
             <span class="text-slate-300">❌ Kasut</span>
@@ -334,7 +336,9 @@
     }
 
     function lancarConfetti() {
-        confetti({ particleCount: 60, spread: 70, origin: { y: 0.7 } });
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 60, spread: 70, origin: { y: 0.7 } });
+        }
     }
     
     window.onload = function() { 
@@ -569,6 +573,7 @@
         recognition.onend = () => { stopVoice(); };
         recognition.start();
     }
+    
     function stopVoice() {
         try { document.getElementById('btn-suara').classList.remove('animate-spin', 'bg-indigo-500'); } catch(e){}
     }
@@ -618,70 +623,119 @@
         fetch(urlAPI + "?tarikh=" + tarikhPilih)
         .then(res => res.json())
         .then(data => {
-            // Stat Kad Utam
-            document.getElementById('stat-total').innerText = data.total || 0;
-            document.getElementById('stat-masuk').innerText = data.masuk || 0;
-            document.getElementById('stat-keluar').innerText = data.keluar || 0;
-            document.getElementById('stat-baki-masuk').innerText = data.bakiMasuk || 0;
-            document.getElementById('stat-baki-keluar').innerText = data.bakiKeluar || 0;
+            if (data) {
+                // Kemaskini Statistik Ringkasan
+                document.getElementById('stat-total').innerText = data.total || 0;
+                document.getElementById('stat-masuk').innerText = data.masuk || 0;
+                document.getElementById('stat-keluar').innerText = data.keluar || 0;
+                document.getElementById('stat-baki-masuk').innerText = data.bakiMasuk || 0;
+                document.getElementById('stat-baki-keluar').innerText = data.bakiKeluar || 0;
 
-            // Cache Log Global
-            dataCacheLogGlobal = data.logTerkini || [];
-            tapisLogGlobal();
+                // Kemaskini Laporan Rasmi (Cetakan)
+                document.getElementById('rasmi-tarikh').innerText = tarikhPilih;
+                document.getElementById('rasmi-total').innerText = data.total || 0;
+                document.getElementById('rasmi-masuk').innerText = data.masuk || 0;
+                document.getElementById('rasmi-keluar').innerText = data.keluar || 0;
+                document.getElementById('rasmi-baki-masuk').innerText = data.bakiMasuk || 0;
+                document.getElementById('rasmi-baki-keluar').innerText = data.bakiKeluar || 0;
 
-            // Jadual Ringkasan Tingkatan
-            cacheRingkasanTingkatan = data.ringkasanTingkatan || [];
-            const tbodyTing = document.getElementById('jadual-tingkatan');
-            tbodyTing.innerHTML = "";
-            cacheRingkasanTingkatan.forEach(row => {
-                tbodyTing.innerHTML += `
-                    <tr>
-                        <td class="p-2 font-bold text-indigo-400">T${row.tingkatan}</td>
-                        <td class="p-2 text-center text-slate-300">${row.total}</td>
-                        <td class="p-2 text-center text-emerald-400 font-semibold">${row.masuk}</td>
-                        <td class="p-2 text-center text-rose-400 font-semibold">${row.keluar}</td>
-                    </tr>
-                `;
-            });
+                // Simpan Data Caching
+                dataCacheLogGlobal = data.logPergerakan || [];
+                cacheBelumMasuk = data.senaraiBelumMasuk || [];
+                cacheRingkasanTingkatan = data.ringkasanTingkatan || [];
 
-            // Jadual Belum Masuk
-            cacheBelumMasuk = data.senaraiBelumMasuk || [];
-            const tbodyBelum = document.getElementById('jadual-belum-masuk');
-            tbodyBelum.innerHTML = "";
-            if (cacheBelumMasuk.length > 0) {
-                cacheBelumMasuk.forEach(p => {
-                    tbodyBelum.innerHTML += `
-                        <tr class="hover:bg-slate-900/50">
-                            <td class="p-3 font-semibold text-slate-200">${p.nama}</td>
-                            <td class="p-3 text-center text-slate-400">${p.tingkatan || p.ting}</td>
-                            <td class="p-3 text-center text-slate-400">${p.kelas}</td>
-                            <td class="p-3 text-center text-indigo-400 font-mono">${p.dorm}</td>
-                            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] bg-rose-500/20 text-rose-400 font-bold border border-rose-500/30">BELUM MASUK</span></td>
-                        </tr>
-                    `;
-                });
-            } else {
-                tbodyBelum.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500 italic">Semua pelajar telah mendaftar masuk.</td></tr>`;
+                // Kemaskini UI Jadual
+                tapisLogGlobal();
+                paparRingkasanTingkatan(cacheRingkasanTingkatan);
+                paparPelajarBelumMasuk(cacheBelumMasuk);
             }
         })
-        .catch(err => console.error("Ralat muat naik statistik:", err));
+        .catch(err => console.error("Ralat memuatkan statistik:", err));
+    }
+
+    function paparRingkasanTingkatan(senarai) {
+        const jadual = document.getElementById('jadual-tingkatan');
+        const rasmiJadual = document.getElementById('rasmi-jadual-tingkatan');
+        jadual.innerHTML = "";
+        rasmiJadual.innerHTML = "";
+
+        senarai.forEach(item => {
+            jadual.innerHTML += `
+                <tr>
+                    <td class="p-2 font-bold text-slate-300">Tingkatan ${item.tingkatan}</td>
+                    <td class="p-2 text-center text-slate-400">${item.total}</td>
+                    <td class="p-2 text-center font-semibold text-emerald-400">${item.masuk}</td>
+                    <td class="p-2 text-center font-semibold text-rose-400">${item.keluar}</td>
+                </tr>
+            `;
+
+            rasmiJadual.innerHTML += `
+                <tr>
+                    <td>Tingkatan ${item.tingkatan}</td>
+                    <td>${item.total}</td>
+                    <td>${item.masuk}</td>
+                    <td>${item.keluar}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function paparPelajarBelumMasuk(senarai) {
+        const jadual = document.getElementById('jadual-belum-masuk');
+        const rasmiJadual = document.getElementById('rasmi-jadual-belum-masuk');
+        jadual.innerHTML = "";
+        rasmiJadual.innerHTML = "";
+
+        if (senarai.length === 0) {
+            jadual.innerHTML = `<tr><td colspan="5" class="p-4 text-center italic text-slate-500">Semua pelajar telah mendaftar masuk.</td></tr>`;
+            rasmiJadual.innerHTML = `<tr><td colspan="6" style="text-align: center;">Tiada rekod (Semua pelajar telah berada di asrama).</td></tr>`;
+            return;
+        }
+
+        senarai.forEach((item, index) => {
+            jadual.innerHTML += `
+                <tr class="hover:bg-slate-900/50 transition-colors">
+                    <td class="p-3 font-semibold text-slate-200">${item.nama}</td>
+                    <td class="p-3 text-center text-slate-400">${item.tingkatan || item.ting || '-'}</td>
+                    <td class="p-3 text-center text-slate-400">${item.kelas || item.namaKelas || '-'}</td>
+                    <td class="p-3 text-center text-indigo-400 font-medium">${item.dorm || '-'}</td>
+                    <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">BELUM MASUK</span></td>
+                </tr>
+            `;
+
+            rasmiJadual.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.nama}</td>
+                    <td>${item.tingkatan || item.ting || '-'}</td>
+                    <td>${item.kelas || item.namaKelas || '-'}</td>
+                    <td>${item.dorm || '-'}</td>
+                    <td>BELUM MASUK</td>
+                </tr>
+            `;
+        });
+    }
+
+    function cetakLaporanRasmi() {
+        window.print();
     }
 
     function bukaGrafModal() {
         document.getElementById('modal-graf').classList.remove('hidden');
         const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
+        
         if (cartaInstance) cartaInstance.destroy();
-
-        const masuk = parseInt(document.getElementById('stat-masuk').innerText) || 0;
-        const keluar = parseInt(document.getElementById('stat-keluar').innerText) || 0;
-        const bakiMasuk = parseInt(document.getElementById('stat-baki-masuk').innerText) || 0;
-
+        
         cartaInstance = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['Masuk', 'Keluar', 'Belum Masuk'],
+                labels: ['Masuk', 'Keluar/Outing', 'Belum Masuk'],
                 datasets: [{
-                    data: [masuk, keluar, bakiMasuk],
+                    data: [
+                        parseInt(document.getElementById('stat-masuk').innerText) || 0,
+                        parseInt(document.getElementById('stat-keluar').innerText) || 0,
+                        parseInt(document.getElementById('stat-baki-masuk').innerText) || 0
+                    ],
                     backgroundColor: ['#10b981', '#f43f5e', '#f97316'],
                     borderWidth: 0
                 }]
@@ -690,7 +744,7 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { labels: { color: '#94a3b8' } }
+                    legend: { labels: { color: '#f8fafc' } }
                 }
             }
         });
@@ -700,67 +754,39 @@
         document.getElementById('modal-graf').classList.add('hidden');
     }
 
-    function cetakLaporanRasmi() {
-        const tarikh = document.getElementById('pilih-tarikh').value;
-        document.getElementById('rasmi-tarikh').innerText = tarikh;
-        
-        document.getElementById('rasmi-total').innerText = document.getElementById('stat-total').innerText;
-        document.getElementById('rasmi-masuk').innerText = document.getElementById('stat-masuk').innerText;
-        document.getElementById('rasmi-keluar').innerText = document.getElementById('stat-keluar').innerText;
-        document.getElementById('rasmi-baki-masuk').innerText = document.getElementById('stat-baki-masuk').innerText;
-        document.getElementById('rasmi-baki-keluar').innerText = document.getElementById('stat-baki-keluar').innerText;
-
-        // Populate Rasmi Tingkatan
-        const rasmiTing = document.getElementById('rasmi-jadual-tingkatan');
-        rasmiTing.innerHTML = "";
-        cacheRingkasanTingkatan.forEach(row => {
-            rasmiTing.innerHTML += `<tr><td>Tingkatan ${row.tingkatan}</td><td>${row.total}</td><td>${row.masuk}</td><td>${row.keluar}</td></tr>`;
+    function eksportKeExcel() {
+        let csv = "Nama,Tingkatan,Kelas,Dorm,Status\n";
+        cacheBelumMasuk.forEach(p => {
+            csv += `"${p.nama}","${p.tingkatan || ''}","${p.kelas || ''}","${p.dorm || ''}","BELUM MASUK"\n`;
         });
-
-        // Populate Rasmi Belum Masuk
-        const rasmiBelum = document.getElementById('rasmi-jadual-belum-masuk');
-        rasmiBelum.innerHTML = "";
-        cacheBelumMasuk.forEach((p, index) => {
-            rasmiBelum.innerHTML += `<tr><td>${index + 1}</td><td>${p.nama}</td><td>${p.tingkatan || p.ting}</td><td>${p.kelas}</td><td>${p.dorm}</td><td>BELUM MASUK</td></tr>`;
-        });
-
-        window.print();
+        muatTurunCSV(csv, `Pelajar_Belum_Masuk_${document.getElementById('pilih-tarikh').value}.csv`);
     }
 
-    function eksportKeExcel() {
-        let csvContent = "data:text/csv;charset=utf-8,Nama,Tingkatan,Kelas,Dorm,Status\n";
-        cacheBelumMasuk.forEach(p => {
-            csvContent += `"${p.nama}","${p.tingkatan || p.ting}","${p.kelas}","${p.dorm}","BELUM MASUK"\n`;
+    function eksportLogExcel() {
+        let csv = "Nama,Tingkatan,Kelas,Dorm,Arah,Masa\n";
+        dataCacheLogGlobal.forEach(p => {
+            csv += `"${p.nama}","${p.tingkatan || ''}","${p.kelas || ''}","${p.dorm || ''}","${p.arah || ''}","${p.masa || ''}"\n`;
         });
-        const encodedUri = encodeURI(csvContent);
+        muatTurunCSV(csv, `Log_Pergerakan_${document.getElementById('pilih-tarikh').value}.csv`);
+    }
+
+    function muatTurunCSV(content, filename) {
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Pelajar_Belum_Masuk_${document.getElementById('pilih-tarikh').value}.csv`);
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     }
 
     function eksportKePDF() {
-        cetakLaporanRasmi();
-    }
-
-    function eksportLogExcel() {
-        let csvContent = "data:text/csv;charset=utf-8,Nama,Tingkatan,Kelas,Dorm,Arah,Masa\n";
-        dataCacheLogGlobal.forEach(p => {
-            csvContent += `"${p.nama}","${p.tingkatan || p.ting}","${p.kelas}","${p.dorm}","${p.arah || p.arahPergerakan}","${p.masa || p.timestamp}"\n`;
-        });
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Log_Pergerakan_${document.getElementById('pilih-tarikh').value}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        window.print();
     }
 
     function eksportLogPDF() {
-        cetakLaporanRasmi();
+        window.print();
     }
   </script>
 </body>
