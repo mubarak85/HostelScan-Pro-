@@ -47,7 +47,7 @@
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-4 lg:p-6 selection:bg-indigo-500 selection:text-white">
-  
+
   <!-- BAR STATUS OFFLINE / SYNC -->
   <div id="bar-status-offline" class="hidden max-w-7xl mx-auto mb-4 bg-amber-500/20 border border-amber-500/50 text-amber-300 px-4 py-2 rounded-2xl text-xs font-bold flex items-center justify-between shadow-lg">
     <span class="flex items-center gap-2">⚠️ Mod Luar Talian Aktif (<span id="jumlah-queue">0</span> data tersimpan)</span>
@@ -527,7 +527,6 @@
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
-        const a = document.getElementById('a');
         const aEl = document.createElement('a');
         aEl.href = url;
         aEl.setAttribute('download', `Log_Aktiviti_Live_${document.getElementById('pilih-tarikh').value}.csv`);
@@ -583,71 +582,66 @@
       sedangMemproses = true; 
 
       let senaraiKesalahan = [];
-      document.querySelectorAll('input[name="kesalahan"]:checked').forEach((checkbox) => {
-          senaraiKesalahan.push(checkbox.value);
+      document.querySelectorAll('input[name="kesalahan"]:checked').forEach(cb => {
+        senaraiKesalahan.push(cb.value);
       });
-      let teksKesalahan = senaraiKesalahan.length > 0 ? senaraiKesalahan.join(", ") : "Tiada";
+      const stringKesalahan = senaraiKesalahan.join(', ');
 
-      const lencana = document.getElementById("notifikasi-badge"); 
-      lencana.classList.remove("hidden"); 
-      lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-blue-950 text-blue-400 border border-blue-900 shadow-md animate-pulse";
-      lencana.innerText = "Memproses...";
+      const badgeNotif = document.getElementById('notifikasi-badge');
+      const kotakInfo = document.getElementById('kotak-maklumat');
 
-      if (!navigator.onLine) {
-          simpanQueueOffline(id, statusSemasaArah, teksKesalahan);
-          mainkanBunyi('BERJAYA');
-          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-950 text-amber-400 border border-amber-900 shadow-md";
-          lencana.innerText = "Disimpan (Luar Talian)";
-          document.querySelectorAll('input[name="kesalahan"]').forEach((cb) => cb.checked = false);
-          setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
-          return;
-      }
+      badgeNotif.classList.remove('hidden', 'bg-emerald-500/20', 'text-emerald-400', 'bg-rose-500/20', 'text-rose-400', 'border-emerald-500/40', 'border-rose-500/40');
+      badgeNotif.classList.add('bg-indigo-500/20', 'text-indigo-300', 'border', 'border-indigo-500/40');
+      badgeNotif.innerText = "⏳ Memproses Data...";
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const payload = {
+        idPelajar: id,
+        arahPergerakan: statusSemasaArah,
+        kesalahan: stringKesalahan
+      };
 
-      fetch(urlAPI, { 
-        method: "POST", 
-        body: JSON.stringify({ 
-          idPelajar: id, 
-          arahPergerakan: statusSemasaArah,
-          kesalahan: teksKesalahan 
-        }),
-        signal: controller.signal
+      fetch(urlAPI, {
+        method: 'POST',
+        body: JSON.stringify(payload)
       })
       .then(res => res.json())
-      .then(data => {
-        clearTimeout(timeoutId);
-        if (data.status === "SUCCESS") {
-          mainkanBunyi('BERJAYA'); 
-          lancarConfetti();
-          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-950 text-emerald-400 border border-emerald-900 shadow-md"; 
-          lencana.innerText = "Berjaya Disahkan!" + (teksKesalahan !== "Tiada" ? " (Ada Salahlaku)" : "");
-          document.getElementById("data-nama").innerText = data.nama; 
-          document.getElementById("data-dorm").innerText = data.dorm;
-          document.getElementById("data-avatar").innerText = data.nama.charAt(0).toUpperCase();
-          const statusEl = document.getElementById("data-status");
-          statusEl.innerText = data.statusHadir;
-          statusEl.className = data.statusHadir === "MASUK" ? "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-emerald-950 text-emerald-400 border border-emerald-900" : "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-red-950 text-red-400 border border-red-900";
-          document.getElementById("kotak-maklumat").classList.remove("hidden"); 
-          
-          document.querySelectorAll('input[name="kesalahan"]').forEach((cb) => cb.checked = false);
+      .then(res => {
+        badgeNotif.classList.remove('bg-indigo-500/20', 'text-indigo-300', 'border-indigo-500/40');
+
+        if (res.status === 'success' || res.success) {
+          mainkanBunyi('BERJAYA');
+          if (statusSemasaArah === 'MASUK') lancarConfetti();
+
+          badgeNotif.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border', 'border-emerald-500/40');
+          badgeNotif.innerText = `✅ REKOD BERJAYA (${statusSemasaArah})`;
+
+          kotakInfo.classList.remove('hidden');
+          document.getElementById('data-nama').innerText = res.nama || id;
+          document.getElementById('data-dorm').innerText = `Dorm: ${res.dorm || '-'} | Ting: ${res.tingkatan || '-'}`;
+          document.getElementById('data-status').innerText = statusSemasaArah;
+          document.getElementById('data-status').className = statusSemasaArah === 'MASUK' ? 'text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-emerald-500/20 text-emerald-400' : 'text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-rose-500/20 text-rose-400';
+
           muatNaikStatistik();
-        } else { 
-          mainkanBunyi('GAGAL'); 
-          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-950 text-rose-400 border border-rose-900 shadow-md"; 
-          lencana.innerText = "ID Tidak Dijumpai"; 
+        } else {
+          mainkanBunyi('GAGAL');
+          badgeNotif.classList.add('bg-rose-500/20', 'text-rose-400', 'border', 'border-rose-500/40');
+          badgeNotif.innerText = `❌ ${res.message || 'ID Pelajar Tidak Wujud'}`;
         }
-        setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
       })
       .catch(err => {
-        clearTimeout(timeoutId);
-        simpanQueueOffline(id, statusSemasaArah, teksKesalahan);
-        mainkanBunyi('BERJAYA');
-        lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-950 text-amber-400 border border-amber-900 shadow-md";
-        lencana.innerText = "Ralat Rangkaian - Disimpan Offline";
-        document.querySelectorAll('input[name="kesalahan"]').forEach((cb) => cb.checked = false);
-        setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
+        console.warn("Ralat rangkaian, menyimpan ke queue offline:", err);
+        simpanQueueOffline(id, statusSemasaArah, stringKesalahan);
+
+        badgeNotif.classList.remove('bg-indigo-500/20', 'text-indigo-300', 'border-indigo-500/40');
+        badgeNotif.classList.add('bg-amber-500/20', 'text-amber-300', 'border', 'border-amber-500/40');
+        badgeNotif.innerText = "⚠️ Disimpan ke Mod Luar Talian";
+      })
+      .finally(() => {
+        // Reset pilihan borang
+        document.querySelectorAll('input[name="kesalahan"]').forEach(cb => cb.checked = false);
+        setTimeout(() => {
+          sedangMemproses = false;
+        }, 1200);
       });
     }
   </script>
