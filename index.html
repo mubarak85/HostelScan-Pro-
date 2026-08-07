@@ -38,11 +38,18 @@
       object-fit: cover;
       border-radius: 1rem;
     }
+
+    /* KOD KHAS CETAKAN LAPORAN RASMI */
+    #seksyen-laporan-rasmi { display: none; }
+    
     @media print {
-      body { background: white; color: black; padding: 0; }
-      #elemen-cetak-padam, .lg\:col-span-4-kamera, #kad-tarikh, #kad-analisa, #kad-ringkasan, #kad-belum-masuk, .butang-aksi { display: none !important; }
-      .lg\:col-span-4-sidebar { width: 100% !important; border: none !important; box-shadow: none !important; }
-      .tabel-cetak { border: 1px solid #000 !important; }
+      body { background: white !important; color: black !important; padding: 0 !important; font-family: sans-serif; }
+      .max-w-7xl, #bar-status-offline, #modal-graf { display: none !important; }
+      #seksyen-laporan-rasmi { display: block !important; padding: 20px; }
+      
+      .jadual-rasmi { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; }
+      .jadual-rasmi th, .jadual-rasmi td { border: 1px solid #333; padding: 6px 10px; font-size: 12px; text-align: left; }
+      .jadual-rasmi th { background-color: #f1f5f9 !important; color: #000 !important; font-weight: bold; }
     }
   </style>
 </head>
@@ -153,7 +160,12 @@
           <div class="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-sm">📅</div>
           <div><h3 class="font-bold text-sm text-slate-200">Tarikh Rujukan Warden</h3></div>
         </div>
-        <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="glass-input rounded-2xl px-3 py-1.5 text-sm font-semibold text-slate-200 focus:outline-none w-full sm:w-auto">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="glass-input rounded-2xl px-3 py-1.5 text-sm font-semibold text-slate-200 focus:outline-none w-full sm:w-auto">
+          <button onclick="cetakLaporanRasmi()" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-xs px-3 py-2 rounded-2xl shadow-lg cursor-pointer transition-all flex items-center gap-1 shrink-0">
+            <span>📑</span> Cetak Laporan
+          </button>
+        </div>
       </div>
       
       <div id="kad-analisa" class="cyber-card p-6 rounded-3xl shadow-2xl">
@@ -208,12 +220,87 @@
     </div>
   </div>
 
+  <!-- TEMPLAT RASMI LAPORAN CETAKAN (AKAN DIPAPARKAN MASA PRINT SAHAJA) -->
+  <div id="seksyen-laporan-rasmi">
+    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+      <h2 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">LAPORAN RASMI ANALISA KEHADIRAN & PERGERAKAN PELAJAR ASRAMA</h2>
+      <p style="font-size: 12px; margin: 5px 0 0 0;">TARIKH RUJUKAN: <span id="rasmi-tarikh" style="font-weight: bold;">-</span></p>
+    </div>
+
+    <!-- ANALISA KESELURAHAN -->
+    <h3 style="font-size: 13px; font-weight: bold; margin-bottom: 5px;">1. RINGKASAN STATISTIK KESELURAHAN</h3>
+    <table class="jadual-rasmi">
+      <thead>
+        <tr>
+          <th>Jumlah Penghuni</th>
+          <th>Jumlah Masuk</th>
+          <th>Jumlah Keluar</th>
+          <th>Baki Belum Masuk</th>
+          <th>Baki Masih Di Luar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="rasmi-total">0</td>
+          <td id="rasmi-masuk">0</td>
+          <td id="rasmi-keluar">0</td>
+          <td id="rasmi-baki-masuk">0</td>
+          <td id="rasmi-baki-keluar">0</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- RINGKASAN TINGKATAN -->
+    <h3 style="font-size: 13px; font-weight: bold; margin-bottom: 5px;">2. ANALISA KEHADIRAN MENGIKUT TINGKATAN</h3>
+    <table class="jadual-rasmi">
+      <thead>
+        <tr>
+          <th>Tingkatan</th>
+          <th>Jumlah Pelajar</th>
+          <th>Masuk</th>
+          <th>Keluar / Outing</th>
+        </tr>
+      </thead>
+      <tbody id="rasmi-jadual-tingkatan"></tbody>
+    </table>
+
+    <!-- SENARAI BELUM MASUK -->
+    <h3 style="font-size: 13px; font-weight: bold; margin-bottom: 5px;">3. SENARAI PELAJAR BELUM MASUK ASRAMA</h3>
+    <table class="jadual-rasmi">
+      <thead>
+        <tr>
+          <th>Bil</th>
+          <th>Nama Pelajar</th>
+          <th>Tingkatan</th>
+          <th>Dorm</th>
+          <th>Status Terakhir</th>
+        </tr>
+      </thead>
+      <tbody id="rasmi-jadual-belum-masuk"></tbody>
+    </table>
+
+    <!-- RUANGAN TANDATANGAN -->
+    <div style="margin-top: 40px; display: flex; justify-content: space-between; page-break-inside: avoid;">
+      <div style="width: 45%;">
+        <p style="font-size: 11px; margin-bottom: 50px;">Disediakan Oleh:</p>
+        <p style="font-size: 11px; font-weight: bold; border-top: 1px solid #000; pt-1;">( WARDEN BERTUGAS )</p>
+        <p style="font-size: 10px;">Tarikh: ___________________</p>
+      </div>
+      <div style="width: 45%;">
+        <p style="font-size: 11px; margin-bottom: 50px;">Disahkan Oleh:</p>
+        <p style="font-size: 11px; font-weight: bold; border-top: 1px solid #000; pt-1;">( KETUA WARDEN / PK HEM )</p>
+        <p style="font-size: 10px;">Tarikh: ___________________</p>
+      </div>
+    </div>
+  </div>
+
   <script>
     let sedangMemproses = false; 
     let statusSemasaArah = "MASUK";
     let senaraiLogData = []; 
     let dataCacheLogGlobal = [];
     let cacheBelumMasuk = [];
+    let cacheRingkasanTingkatan = [];
     let cartaInstance = null;
     let html5QrCode = null;
     const urlAPI = "https://script.google.com/macros/s/AKfycbySgLDympazb5h_eBk-Go4oDa66GPGh25m1z4xlNND7hnI8xLwkW2dIp44jayQ2ugvLtQ/exec";
@@ -259,7 +346,7 @@
                 }
             },
             (errorMessage) => {
-                // Abaikan ralat bingkai kosong semasa imbasan aktif
+                // Abaikan ralat imbasan bingkai kosong
             }
         ).catch(err => {
             console.error("Gagal memulakan kamera:", err);
@@ -439,10 +526,11 @@
             document.getElementById('stat-baki-masuk').innerText = data.keseluruhan.bakiMasuk;
             document.getElementById('stat-baki-keluar').innerText = data.keseluruhan.bakiKeluar;
 
+            cacheRingkasanTingkatan = data.ringkasanTingkatan || [];
             const tBodyTing = document.getElementById('jadual-tingkatan');
             tBodyTing.innerHTML = "";
-            if(data.ringkasanTingkatan && data.ringkasanTingkatan.length > 0) {
-                data.ringkasanTingkatan.forEach(row => {
+            if(cacheRingkasanTingkatan.length > 0) {
+                cacheRingkasanTingkatan.forEach(row => {
                     tBodyTing.innerHTML += `
                         <tr class="hover:bg-slate-900/40">
                             <td class="p-2 font-bold text-slate-300">${row.ting}</td>
@@ -479,6 +567,58 @@
             tapisLogGlobal();
         })
         .catch(err => console.error("Ralat muat data:", err));
+    }
+
+    // FUNGSI KHAS CETAK LAPORAN RASMI WARDEN
+    function cetakLaporanRasmi() {
+        const tarikhPilih = document.getElementById('pilih-tarikh').value;
+        document.getElementById('rasmi-tarikh').innerText = tarikhPilih;
+
+        document.getElementById('rasmi-total').innerText = document.getElementById('stat-total').innerText;
+        document.getElementById('rasmi-masuk').innerText = document.getElementById('stat-masuk').innerText;
+        document.getElementById('rasmi-keluar').innerText = document.getElementById('stat-keluar').innerText;
+        document.getElementById('rasmi-baki-masuk').innerText = document.getElementById('stat-baki-masuk').innerText;
+        document.getElementById('rasmi-baki-keluar').innerText = document.getElementById('stat-baki-keluar').innerText;
+
+        // Populate Ringkasan Tingkatan
+        const rasmiTing = document.getElementById('rasmi-jadual-tingkatan');
+        rasmiTing.innerHTML = "";
+        if (cacheRingkasanTingkatan.length > 0) {
+            cacheRingkasanTingkatan.forEach(row => {
+                rasmiTing.innerHTML += `
+                    <tr>
+                        <td>Tingkatan ${row.ting}</td>
+                        <td>${row.total}</td>
+                        <td>${row.masuk}</td>
+                        <td>${row.keluar}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            rasmiTing.innerHTML = `<tr><td colspan="4" style="text-align:center;">Tiada data rekod tingkatan.</td></tr>`;
+        }
+
+        // Populate Pelajar Belum Masuk
+        const rasmiBelum = document.getElementById('rasmi-jadual-belum-masuk');
+        rasmiBelum.innerHTML = "";
+        if (cacheBelumMasuk.length > 0) {
+            cacheBelumMasuk.forEach((p, idx) => {
+                rasmiBelum.innerHTML += `
+                    <tr>
+                        <td style="text-align:center;">${idx + 1}</td>
+                        <td>${p.nama}</td>
+                        <td style="text-align:center;">${p.tingkatan}</td>
+                        <td style="text-align:center;">${p.dorm}</td>
+                        <td style="text-align:center;">${p.statusTerakhir}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            rasmiBelum.innerHTML = `<tr><td colspan="5" style="text-align:center; font-weight:bold; color:green;">Semua pelajar telah masuk ke asrama.</td></tr>`;
+        }
+
+        // Cetak
+        window.print();
     }
 
     function eksportKeExcel() {
@@ -637,7 +777,6 @@
         badgeNotif.innerText = "⚠️ Disimpan ke Mod Luar Talian";
       })
       .finally(() => {
-        // Reset pilihan borang
         document.querySelectorAll('input[name="kesalahan"]').forEach(cb => cb.checked = false);
         setTimeout(() => {
           sedangMemproses = false;
