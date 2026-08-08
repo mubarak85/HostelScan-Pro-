@@ -198,7 +198,7 @@
     <div class="cyber-card p-6 rounded-3xl max-w-2xl w-full relative">
       <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
         <h3 class="font-bold text-slate-200 text-base flex items-center gap-2"><span>📈</span> Graf Trend Pergerakan Harian</h3>
-        <button onclick="tutupGrafModal()" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+        <button onclick="tutupGrafModal()" class="text-slate-400 hover:text-white font-bold p-1 cursor-pointer">✕</button>
       </div>
       <div class="relative h-64 w-full">
         <canvas id="grafTrendCanvas"></canvas>
@@ -212,6 +212,7 @@
     let dataCacheLogGlobal = [];
     let cacheBelumMasuk = [];
     let html5QrCode = null;
+    let chartInstance = null;
     const urlAPI = "https://script.google.com/macros/s/AKfycbySgLDympazb5h_eBk-Go4oDa66GPGh25m1z4xlNND7hnI8xLwkW2dIp44jayQ2ugvLtQ/exec";
     
     function mainkanBunyi(jenis) {
@@ -304,7 +305,6 @@
       }
     }
 
-    /* PAPARAN LOG AKTIVITI BERDASARKAN STATUS PERGERAKAN TERKINI */
     function tapisLogGlobal() {
         const keyword = document.getElementById('carian-global').value.toLowerCase();
         const sidebar = document.getElementById("sidebar-log-pergerakan");
@@ -319,10 +319,9 @@
 
         if (filtered.length > 0) {
             filtered.forEach(item => {
-                // Mengesan pelbagai kemungkinan kunci nama status
                 const rawStatus = item.statusPergerakan || item["Status Pergerakan"] || item.arah || item.arahPergerakan || item.status || "MASUK";
                 const statusPergerakanStr = String(rawStatus).toUpperCase();
-                const isMasuk = statusPergerakanStr.includes("MASUK");
+                const isMasuk = statusPergerakanStr.includes("MASUK") || statusPergerakanStr.includes("LEWAT");
 
                 const warnaBg = isMasuk 
                   ? 'bg-emerald-950/20 border-emerald-900/40 text-emerald-200' 
@@ -367,17 +366,20 @@
             const tBodyTing = document.getElementById('jadual-tingkatan');
             tBodyTing.innerHTML = "";
             const ringkasanTing = data.ringkasanTingkatan || data.tingkatan || {};
-            if (Object.keys(ringkasanTing).length > 0) {
-              for (const [ting, stat] of Object.entries(ringkasanTing)) {
+            
+            let listTing = Array.isArray(ringkasanTing) ? ringkasanTing : Object.values(ringkasanTing);
+
+            if (listTing.length > 0) {
+              listTing.forEach(stat => {
                 tBodyTing.innerHTML += `
                   <tr class="hover:bg-slate-900/40">
-                    <td class="p-2 font-bold text-slate-300">Tingkatan ${ting}</td>
+                    <td class="p-2 font-bold text-slate-300">Tingkatan ${stat.ting || stat.tingkatan || '-'}</td>
                     <td class="p-2 text-center font-bold text-slate-200">${stat.total || 0}</td>
                     <td class="p-2 text-center font-bold text-emerald-400">${stat.masuk || 0}</td>
                     <td class="p-2 text-center font-bold text-rose-400">${stat.keluar || 0}</td>
                   </tr>
                 `;
-              }
+              });
             } else {
               tBodyTing.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-500 italic">Tiada data tingkatan.</td></tr>`;
             }
@@ -401,7 +403,7 @@
                 tBodyBelum.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-emerald-400 font-semibold">Semua pelajar telah masuk.</td></tr>`;
             }
 
-            dataCacheLogGlobal = data.logTerkini || [];
+            dataCacheLogGlobal = data.logTerkini || data.logPergerakan || [];
             tapisLogGlobal();
         })
         .catch(err => console.error("Ralat muat data:", err));
@@ -452,7 +454,6 @@
 
           const masaMinit = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
           
-          // PENAMBAHAN KUNCI STATUS SECARA SELARAS UNTUK MENGELAKKAN ISU LOG KELUAR TERSALAH TAMPIL
           dataCacheLogGlobal.unshift({
             id: id,
             nama: resData.nama || id,
@@ -556,9 +557,9 @@
     function eksportLogExcel() {
         if (!dataCacheLogGlobal || dataCacheLogGlobal.length === 0) return;
         let csvContent = "\uFEFFID,Nama,Tingkatan,Kelas,Dorm,Status Pergerakan,Masa\n";
-        dataCacheLogGlobal.forEach(l => {
-            let st = l.statusPergerakan || l["Status Pergerakan"] || l.arah || "MASUK";
-            csvContent += `"${l.id || ''}","${l.nama || ''}","${l.tingkatan || ''}","${l.kelas || ''}","${l.dorm || ''}","${st}","${l.masa || ''}"\n`;
+        dataCacheLogGlobal.forEach(item => {
+            const rawStatus = item.statusPergerakan || item["Status Pergerakan"] || item.arah || item.status || "MASUK";
+            csvContent += `"${item.id || ''}","${item.nama || ''}","${item.tingkatan || ''}","${item.kelas || ''}","${item.dorm || ''}","${rawStatus}","${item.masa || ''}"\n`;
         });
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
@@ -569,25 +570,42 @@
 
     function eksportKePDF() { window.print(); }
     function eksportLogPDF() { window.print(); }
-    function bukaGrafModal() { document.getElementById('modal-graf').classList.remove('hidden'); renderGrafTrend(); }
-    function tutupGrafModal() { document.getElementById('modal-graf').classList.add('hidden'); }
-    function renderGrafTrend() {
-        const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
-        if (window.cartaInstance) window.cartaInstance.destroy();
-        window.cartaInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Masuk', 'Keluar'],
-                datasets: [{
-                    label: 'Pergerakan Harian',
-                    data: [document.getElementById('stat-masuk').innerText, document.getElementById('stat-keluar').innerText],
-                    backgroundColor: ['rgba(16, 185, 129, 0.6)', 'rgba(239, 68, 68, 0.6)'],
-                    borderColor: ['#10b981', '#ef4444'],
-                    borderWidth: 1
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
+
+    /* FUNGSI KAWALAN GRAF TREND MODAL */
+    function bukaGrafModal() {
+      document.getElementById('modal-graf').classList.remove('hidden');
+      const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
+      
+      const masukCount = parseInt(document.getElementById('stat-masuk').innerText) || 0;
+      const keluarCount = parseInt(document.getElementById('stat-keluar').innerText) || 0;
+      const bakiMasukCount = parseInt(document.getElementById('stat-baki-masuk').innerText) || 0;
+
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Masuk', 'Keluar', 'Baki Masuk'],
+          datasets: [{
+            label: 'Statistik Harian',
+            data: [masukCount, keluarCount, bakiMasukCount],
+            backgroundColor: ['#10b981', '#f43f5e', '#f97316']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    function tutupGrafModal() {
+      document.getElementById('modal-graf').classList.add('hidden');
     }
   </script>
 </body>
