@@ -193,6 +193,19 @@
     </div>
   </div>
 
+  <!-- MODAL GRAF TREND -->
+  <div id="modal-graf" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="cyber-card p-6 rounded-3xl max-w-2xl w-full relative">
+      <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-slate-200 text-base flex items-center gap-2"><span>📈</span> Graf Trend Pergerakan Harian</h3>
+        <button onclick="tutupGrafModal()" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+      </div>
+      <div class="relative h-64 w-full">
+        <canvas id="grafTrendCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
   <script>
     let sedangMemproses = false; 
     let statusSemasaArah = "MASUK";
@@ -291,7 +304,7 @@
       }
     }
 
-    /* FUNGSI TUKAR & PENAPISAN LOG AKTIVITI BERDASARKAN STATUS PERGERAKAN TAB KEHADIRAN */
+    /* PAPARAN LOG AKTIVITI BERDASARKAN STATUS PERGERAKAN TERKINI */
     function tapisLogGlobal() {
         const keyword = document.getElementById('carian-global').value.toLowerCase();
         const sidebar = document.getElementById("sidebar-log-pergerakan");
@@ -306,8 +319,8 @@
 
         if (filtered.length > 0) {
             filtered.forEach(item => {
-                // Membaca lajur Status Pergerakan daripada tab Kehadiran
-                const rawStatus = item["Status Pergerakan"] || item.statusPergerakan || item.arah || item.arahPergerakan || item.status || "MASUK";
+                // Mengesan pelbagai kemungkinan kunci nama status
+                const rawStatus = item.statusPergerakan || item["Status Pergerakan"] || item.arah || item.arahPergerakan || item.status || "MASUK";
                 const statusPergerakanStr = String(rawStatus).toUpperCase();
                 const isMasuk = statusPergerakanStr.includes("MASUK");
 
@@ -317,7 +330,7 @@
                 
                 const ikonArah = isMasuk ? '📥 MASUK' : '📤 KELUAR';
                 const namaPelajar = item.nama || "Tanpa Nama";
-                const kelasPelajar = item.kelas || item.tingkatan || "-";
+                const kelasPelajar = item.kelas || "-";
                 const tingPelajar = item.tingkatan || item.ting || "-";
                 const dormPelajar = item.dorm || "-";
                 const masaLog = item.masa || item.timestamp || "-";
@@ -350,6 +363,24 @@
             document.getElementById('stat-keluar').innerText = data.keseluruhan ? data.keseluruhan.keluar : 0;
             document.getElementById('stat-baki-masuk').innerText = data.keseluruhan ? data.keseluruhan.bakiMasuk : 0;
             document.getElementById('stat-baki-keluar').innerText = data.keseluruhan ? data.keseluruhan.bakiKeluar : 0;
+
+            const tBodyTing = document.getElementById('jadual-tingkatan');
+            tBodyTing.innerHTML = "";
+            const ringkasanTing = data.ringkasanTingkatan || data.tingkatan || {};
+            if (Object.keys(ringkasanTing).length > 0) {
+              for (const [ting, stat] of Object.entries(ringkasanTing)) {
+                tBodyTing.innerHTML += `
+                  <tr class="hover:bg-slate-900/40">
+                    <td class="p-2 font-bold text-slate-300">Tingkatan ${ting}</td>
+                    <td class="p-2 text-center font-bold text-slate-200">${stat.total || 0}</td>
+                    <td class="p-2 text-center font-bold text-emerald-400">${stat.masuk || 0}</td>
+                    <td class="p-2 text-center font-bold text-rose-400">${stat.keluar || 0}</td>
+                  </tr>
+                `;
+              }
+            } else {
+              tBodyTing.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-500 italic">Tiada data tingkatan.</td></tr>`;
+            }
 
             cacheBelumMasuk = data.belumMasuk || [];
             const tBodyBelum = document.getElementById('jadual-belum-masuk');
@@ -419,6 +450,22 @@
             ? "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-emerald-950 text-emerald-400 border border-emerald-800" 
             : "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-rose-950 text-rose-400 border border-rose-800";
 
+          const masaMinit = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          
+          // PENAMBAHAN KUNCI STATUS SECARA SELARAS UNTUK MENGELAKKAN ISU LOG KELUAR TERSALAH TAMPIL
+          dataCacheLogGlobal.unshift({
+            id: id,
+            nama: resData.nama || id,
+            tingkatan: resData.tingkatan || "-",
+            kelas: resData.kelas || "-",
+            dorm: resData.dorm || "-",
+            statusPergerakan: statusSemasaArah,
+            "Status Pergerakan": statusSemasaArah,
+            masa: masaMinit
+          });
+          
+          tapisLogGlobal();
+
           document.querySelectorAll('input[name="kesalahan"]').forEach(cb => cb.checked = false);
           muatNaikStatistik();
         } else {
@@ -430,8 +477,9 @@
       .catch(err => {
         console.error(err);
         mainkanBunyi('RALAT');
+        simpanQueueOffline(id, statusSemasaArah, stringKesalahan);
         badgeNotif.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all bg-amber-600 text-white";
-        badgeNotif.innerText = "⚠️ Ralat Rangkaian semasa merekod.";
+        badgeNotif.innerText = "⚠️ Ralat Rangkaian. Data disimpan dalam mod luar talian.";
       })
       .finally(() => {
         setTimeout(() => { sedangMemproses = false; }, 1200);
@@ -509,8 +557,8 @@
         if (!dataCacheLogGlobal || dataCacheLogGlobal.length === 0) return;
         let csvContent = "\uFEFFID,Nama,Tingkatan,Kelas,Dorm,Status Pergerakan,Masa\n";
         dataCacheLogGlobal.forEach(l => {
-            let st = l["Status Pergerakan"] || l.statusPergerakan || l.arah || "MASUK";
-            csvContent += `"${l.id}","${l.nama}","${l.tingkatan}","${l.kelas}","${l.dorm}","${st}","${l.masa}"\n`;
+            let st = l.statusPergerakan || l["Status Pergerakan"] || l.arah || "MASUK";
+            csvContent += `"${l.id || ''}","${l.nama || ''}","${l.tingkatan || ''}","${l.kelas || ''}","${l.dorm || ''}","${st}","${l.masa || ''}"\n`;
         });
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
