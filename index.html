@@ -97,7 +97,7 @@
       </div>
 
       <div class="p-5 space-y-4">
-        <!-- PAPARAN KAMERA UTAMA (UNIVERSAL) -->
+        <!-- PAPARAN KAMERA UTAMA -->
         <div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 p-2">
           <div id="reader" class="w-full min-h-[220px]"></div>
           <div class="flex gap-2 mt-3">
@@ -254,7 +254,6 @@
             config, 
             (decodedText) => {
                 if (!sedangMemproses) {
-                    mainkanBunyi('BERJAYA');
                     prosesPenghantaranData(decodedText.trim());
                 }
             },
@@ -342,7 +341,11 @@
         localStorage.setItem('hostelQueue', JSON.stringify(queue));
         cekQueueOffline();
         
-        fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: item.id, arahPergerakan: item.arah, kesalahan: item.kesalahan }) })
+        fetch(urlAPI, { 
+          method: "POST", 
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ idPelajar: item.id, arahPergerakan: item.arah, kesalahan: item.kesalahan }) 
+        })
         .then(() => {
             if (queue.length > 0) syncDataOffline();
             else muatNaikStatistik();
@@ -577,78 +580,94 @@
         });
     }
     
+    // FUNGSI UTAMA PENGHANTARAN DATA IMBASAN / MANUAL
     function prosesPenghantaranData(id) {
       if (sedangMemproses) return; 
       sedangMemproses = true; 
 
-      // Kumpul kesalahan disiplin yang ditanda
+      // 1. Kumpul kesalahan disiplin yang ditanda
       let senaraiKesalahan = [];
       document.querySelectorAll('input[name="kesalahan"]:checked').forEach((box) => {
         senaraiKesalahan.push(box.value);
       });
-      let stringKesalahan = senaraiKesalahan.join(', ');
 
       const badge = document.getElementById('notifikasi-badge');
       const kotakMaklumat = document.getElementById('kotak-maklumat');
-      
-      badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all animate-pulse bg-indigo-600 text-white";
-      badge.innerText = "⏳ Memproses Data...";
-      badge.classList.remove('hidden');
+      const arahHantar = statusSemasaArah; 
 
-      // Tentu mod pergerakan
-      const arah = statusSemasaArah;
+      if (badge) {
+        badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all animate-pulse bg-indigo-600 text-white";
+        badge.innerText = `⏳ Memproses Data (${arahHantar})...`;
+        badge.classList.remove('hidden');
+      }
 
+      // 2. Hantar Payload ke Google Apps Script
       fetch(urlAPI, {
         method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({
           idPelajar: id,
-          arahPergerakan: arah,
-          kesalahan: stringKesalahan
+          arahPergerakan: arahHantar,
+          kesalahan: senaraiKesalahan,
+          timestamp: new Date().toISOString()
         })
       })
       .then(res => res.json())
       .then(data => {
-        if (data.status === 'SUCCESS' || data.success) {
+        if (data.status === 'SUCCESS') {
           mainkanBunyi('BERJAYA');
           lancarConfetti();
-          
-          badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all bg-emerald-500 text-slate-950";
-          badge.innerText = `✅ PERGERAKAN (${arah}) BERJAYA!`;
 
-          // Kemaskini Kad Maklumat Pelajar
-          document.getElementById('data-nama').innerText = data.nama || id;
-          document.getElementById('data-dorm').innerText = `Dorm: ${data.dorm || '-'} • Kelas: ${data.kelas || '-'}`;
+          const statusTersimpan = data.statusHadir || data.arah || arahHantar;
+
+          if (badge) {
+            badge.className = statusTersimpan === 'KELUAR' 
+              ? "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all bg-rose-500 text-white" 
+              : "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all bg-emerald-500 text-slate-950";
+            badge.innerText = `✅ PERGERAKAN (${statusTersimpan}) BERJAYA!`;
+          }
+
+          // Kemaskini Paparan Kad Maklumat Pelajar
+          if (document.getElementById('data-nama')) document.getElementById('data-nama').innerText = data.nama || id;
+          if (document.getElementById('data-dorm')) document.getElementById('data-dorm').innerText = `Dorm: ${data.dorm || '-'} • Kelas: ${data.kelas || '-'}`;
           
           const statusEl = document.getElementById('data-status');
-          statusEl.innerText = arah;
-          statusEl.className = arah === 'MASUK' ? "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" : "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-rose-500/20 text-rose-400 border border-rose-500/40";
+          if (statusEl) {
+            statusEl.innerText = statusTersimpan;
+            statusEl.className = statusTersimpan === 'KELUAR' 
+              ? "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-rose-500/20 text-rose-400 border border-rose-500/40" 
+              : "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+          }
 
-          kotakMaklumat.classList.remove('hidden');
-          
-          // Reset Pilihan Kesalahan
+          if (kotakMaklumat) kotakMaklumat.classList.remove('hidden');
+
+          // Nyah-tanda (Uncheck) petak kesalahan selepas imbasan berjaya
           document.querySelectorAll('input[name="kesalahan"]:checked').forEach(box => box.checked = false);
 
+          // Kemaskini Statistik Secara Live
           muatNaikStatistik();
+
         } else {
           mainkanBunyi('GAGAL');
-          badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all bg-rose-600 text-white";
-          badge.innerText = `❌ ${data.message || 'ID Tidak Ditemui / Ralat'}`;
+          if (badge) {
+            badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all bg-rose-600 text-white";
+            badge.innerText = `❌ ${data.message || 'ID Tidak Ditemui / Ralat'}`;
+          }
         }
       })
       .catch(err => {
-        console.warn("Ralat rangkaian, menyimpan ke Offline Queue:", err);
-        simpanQueueOffline(id, arah, stringKesalahan);
+        // Simpan ke modul offline sekiranya talian terputus
+        simpanQueueOffline(id, arahHantar, senaraiKesalahan);
         
-        badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all bg-amber-500 text-slate-950";
-        badge.innerText = "⚠️ Talian Terputus: Data Disimpan Mod Offline";
-        
-        // Reset Pilihan Kesalahan
+        if (badge) {
+          badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all bg-amber-500 text-slate-950";
+          badge.innerText = "⚠️ Talian Terputus: Data Disimpan Mod Offline";
+        }
         document.querySelectorAll('input[name="kesalahan"]:checked').forEach(box => box.checked = false);
       })
       .finally(() => {
-        setTimeout(() => {
-          sedangMemproses = false;
-        }, 1200);
+        // Nyah-kunci proses imbasan selepas 1.2 saat
+        setTimeout(() => { sedangMemproses = false; }, 1200);
       });
     }
   </script>
