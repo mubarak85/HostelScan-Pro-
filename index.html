@@ -581,64 +581,69 @@
       if (sedangMemproses) return; 
       sedangMemproses = true; 
 
+      // Kumpul kesalahan disiplin yang ditanda
       let senaraiKesalahan = [];
       document.querySelectorAll('input[name="kesalahan"]:checked').forEach(cb => {
         senaraiKesalahan.push(cb.value);
       });
       const stringKesalahan = senaraiKesalahan.join(', ');
 
-      const badgeNotif = document.getElementById('notifikasi-badge');
-      const kotakInfo = document.getElementById('kotak-maklumat');
+      const badge = document.getElementById('notifikasi-badge');
+      const kotakMaklumat = document.getElementById('kotak-maklumat');
 
-      badgeNotif.classList.remove('hidden', 'bg-emerald-500/20', 'text-emerald-400', 'bg-rose-500/20', 'text-rose-400', 'border-emerald-500/40', 'border-rose-500/40');
-      badgeNotif.classList.add('bg-indigo-500/20', 'text-indigo-300', 'border', 'border-indigo-500/40');
-      badgeNotif.innerText = "⏳ Memproses Data...";
+      // Tunjukkan status memproses
+      badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-indigo-600 text-white block";
+      badge.innerText = "⏳ Sedang memproses ID: " + id + "...";
 
-      const payload = {
+      const hantarData = {
         idPelajar: id,
         arahPergerakan: statusSemasaArah,
         kesalahan: stringKesalahan
       };
 
       fetch(urlAPI, {
-        method: 'POST',
-        body: JSON.stringify(payload)
+        method: "POST",
+        body: JSON.stringify(hantarData)
       })
       .then(res => res.json())
-      .then(res => {
-        badgeNotif.classList.remove('bg-indigo-500/20', 'text-indigo-300', 'border-indigo-500/40');
-
-        if (res.status === 'success' || res.success) {
+      .then(data => {
+        if (data.status === 'success' || data.success) {
           mainkanBunyi('BERJAYA');
-          if (statusSemasaArah === 'MASUK') lancarConfetti();
+          lancarConfetti();
 
-          badgeNotif.classList.add('bg-emerald-500/20', 'text-emerald-400', 'border', 'border-emerald-500/40');
-          badgeNotif.innerText = `✅ REKOD BERJAYA (${statusSemasaArah})`;
+          badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-emerald-500 text-slate-950 block";
+          badge.innerText = "✅ " + (data.mesej || "Berjaya Direkodkan!");
 
-          kotakInfo.classList.remove('hidden');
-          document.getElementById('data-nama').innerText = res.nama || id;
-          document.getElementById('data-dorm').innerText = `Dorm: ${res.dorm || '-'} | Ting: ${res.tingkatan || '-'}`;
-          document.getElementById('data-status').innerText = statusSemasaArah;
-          document.getElementById('data-status').className = statusSemasaArah === 'MASUK' ? 'text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-emerald-500/20 text-emerald-400' : 'text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-rose-500/20 text-rose-400';
+          // Kemaskini Profil Pelajar
+          kotakMaklumat.classList.remove('hidden');
+          document.getElementById('data-nama').innerText = data.nama || id;
+          document.getElementById('data-dorm').innerText = "Dorm: " + (data.dorm || "-") + " | Ting: " + (data.tingkatan || "-");
+          
+          const statusEl = document.getElementById('data-status');
+          statusEl.innerText = statusSemasaArah;
+          statusEl.className = statusSemasaArah === 'MASUK' 
+            ? "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" 
+            : "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-rose-500/20 text-rose-400 border border-rose-500/40";
+
+          // Uncheck pilihan kesalahan selepas berjaya
+          document.querySelectorAll('input[name="kesalahan"]').forEach(cb => cb.checked = false);
 
           muatNaikStatistik();
         } else {
-          mainkanBunyi('GAGAL');
-          badgeNotif.classList.add('bg-rose-500/20', 'text-rose-400', 'border', 'border-rose-500/40');
-          badgeNotif.innerText = `❌ ${res.message || 'ID Pelajar Tidak Wujud'}`;
+          throw new Error(data.message || "Gagal memproses data.");
         }
       })
       .catch(err => {
-        console.warn("Ralat rangkaian, menyimpan ke queue offline:", err);
+        console.warn("Ralat Server/Offline:", err);
+        mainkanBunyi('RALAT');
+        
+        // Simpan ke queue antrian offline
         simpanQueueOffline(id, statusSemasaArah, stringKesalahan);
 
-        badgeNotif.classList.remove('bg-indigo-500/20', 'text-indigo-300', 'border-indigo-500/40');
-        badgeNotif.classList.add('bg-amber-500/20', 'text-amber-300', 'border', 'border-amber-500/40');
-        badgeNotif.innerText = "⚠️ Disimpan ke Mod Luar Talian";
+        badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-amber-500 text-slate-950 block";
+        badge.innerText = "⚠️ Disimpan dalam Antrian Luar Talian (Offline)";
       })
       .finally(() => {
-        // Reset pilihan borang
-        document.querySelectorAll('input[name="kesalahan"]').forEach(cb => cb.checked = false);
         setTimeout(() => {
           sedangMemproses = false;
         }, 1200);
