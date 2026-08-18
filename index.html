@@ -167,16 +167,15 @@
           <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-2xl font-bold text-xs bg-slate-800 text-slate-400 border border-slate-700 text-center cursor-pointer transition-all transform active:scale-95 flex items-center justify-center gap-1.5"><span>📤</span> SCAN KELUAR</button>
         </div>
 
-      <div class="p-5 space-y-4">
+        <div class="p-5 space-y-4">
           <!-- KOTAK KAMERA QR -->
           <div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 border-2 border-amber-500/30 p-2 shadow-inner">
             <div id="reader" class="w-full min-h-[240px] relative"></div>
             <div class="flex gap-2 mt-3">
-              <button onclick="mulakanKameraOptimized()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-md">Buka Kamera</button>
+              <button onclick="mulakanKamera()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-md">Buka Kamera</button>
               <button onclick="tutupKamera()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-md">Tutup Kamera</button>
             </div>
           </div>
-      </div>
 
           <!-- NOTIFIKASI STATUS -->
           <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm shadow-lg transition-all animate-pulse"></div>
@@ -858,47 +857,6 @@
 
         muatNaikStatistik();
     };
-    <script>
-    let html5QrCodeInstance = null;
-
-    function mulakanKameraOptimized() {
-        if (!html5QrCodeInstance) {
-            html5QrCodeInstance = new Html5Qrcode("reader");
-        }
-        
-        const config = { 
-            fps: 20, 
-            qrbox: { width: 220, height: 220 },
-            experimentalFeatures: {
-                useBarCodeDetectorIfSupported: true 
-            }
-        };
-
-        html5QrCodeInstance.start(
-            { facingMode: "environment" }, 
-            config, 
-            (decodedText) => {
-                console.log("Berjaya imbas: ", decodedText);
-                // Sambungkan dengan fungsi hantar data ke server anda di sini (cth: hantarKeServer(decodedText))
-            }, 
-            (error) => {
-                // Ralat bingkai biasa diabaikan semasa proses imbasan berjalan
-            }
-        ).catch(err => {
-            console.error("Gagal memulakan kamera: ", err);
-            alert("Sila pastikan kebenaran kamera telah diberikan pada pelayar web.");
-        });
-    }
-
-    function tutupKamera() {
-        if (html5QrCodeInstance) {
-            html5QrCodeInstance.stop().then(() => {
-                html5QrCodeInstance.clear();
-            }).catch(err => {
-                console.error("Gagal menutup kamera", err);
-            });
-        }
-    }
   </script>
 </body>
 </html>
