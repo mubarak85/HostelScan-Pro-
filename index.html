@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>HostelScan Pro v6.5 - SMKA Tok Bachok</title>
+  <title>HostelScan Pro - SMKA Tok Bachok</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -164,7 +164,7 @@
       </div>
     </header>
 
-    <!-- STATISTIK UTAMA (2x2 PADA HP, 4 KOLOM PADA DESKTOP) -->
+    <!-- STATISTIK UTAMA -->
     <section id="seksyen-statistik" class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
       <div class="premium-card p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-slate-800 text-slate-200 flex items-center justify-center text-lg shrink-0">👥</div>
@@ -196,12 +196,11 @@
       </div>
     </section>
 
-    <!-- SUSUN ATUR UTAMA: ZONA IMBASAN (KIRI/UTAMA) & ZONA WARDEN (KANAN) -->
+    <!-- SUSUN ATUR UTAMA -->
     <main class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
 
       <!-- ZONA 1: PENGIMBAS UTAMA -->
       <section id="seksyen-imbasan" class="lg:col-span-7 premium-card-gold rounded-2xl sm:rounded-3xl overflow-hidden">
-        <!-- BAR STATUS MOD MASUK / KELUAR -->
         <div class="p-4 sm:p-5 bg-slate-900/90 border-b border-slate-800 space-y-3">
           <div class="flex items-center justify-between gap-2">
             <div>
@@ -226,7 +225,6 @@
         </div>
 
         <div class="p-4 sm:p-5 space-y-4">
-          <!-- NOTIFIKASI & KAD IMBASAN TERAKHIR -->
           <div id="notifikasi-badge" class="hidden text-center py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm shadow-lg transition-all"></div>
 
           <div id="kad-imbasan-terakhir" class="hidden p-3.5 bg-slate-900/95 rounded-2xl border border-emerald-500/30 flex items-center justify-between gap-3">
@@ -238,7 +236,7 @@
             <span id="terakhir-masa" class="text-xs font-mono font-bold bg-slate-950 px-2.5 py-1.5 rounded-xl text-amber-300 border border-slate-800 shrink-0">-</span>
           </div>
 
-          <!-- SUIS KAEDAH IMBASAN (KAMERA DIUTAMAKAN DI PERTAMA) -->
+          <!-- SUIS KAEDAH IMBASAN -->
           <div class="bg-slate-950/70 p-1 rounded-xl border border-slate-800 grid grid-cols-3 gap-1">
             <button type="button" id="subtab-kamera" onclick="pilihKaedahImbas('KAMERA')" class="min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold bg-amber-500 text-slate-950 cursor-pointer transition-all">
               📷 Kamera
@@ -251,18 +249,18 @@
             </button>
           </div>
 
-          <!-- PANEL 1 (UTAMA): KAMERA HP / WEBCAM TERUS TERBUKA -->
+          <!-- PANEL 1: KAMERA HP / WEBCAM -->
           <div id="panel-kaedah-kamera" class="space-y-3">
             <div class="relative w-full rounded-2xl overflow-hidden bg-slate-950 border border-amber-500/25 p-2">
-              <div id="reader" class="w-full min-h-[240px] relative"></div>
+              <div id="reader" class="w-full min-h-[200px] relative bg-slate-900/60 flex items-center justify-center"></div>
               <div class="grid grid-cols-3 gap-2 mt-2.5">
-                <button onclick="mulakanKamera()" class="min-h-[42px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
-                  ▶ Buka Semula
+                <button type="button" onclick="mulakanKamera()" class="min-h-[42px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
+                  ▶ Buka Kamera
                 </button>
-                <button onclick="tukarKamera()" class="min-h-[42px] bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
+                <button type="button" onclick="tukarKamera()" class="min-h-[42px] bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
                   🔄 Tukar
                 </button>
-                <button onclick="tutupKamera()" class="min-h-[42px] bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
+                <button type="button" onclick="tutupKamera()" class="min-h-[42px] bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
                   ⏹ Tutup
                 </button>
               </div>
@@ -345,8 +343,6 @@
 
       <!-- ZONA 2: PEMANTAUAN WARDEN & RINGKASAN -->
       <aside id="seksyen-warden" class="lg:col-span-5 space-y-4">
-
-        <!-- TINDAKAN PANTAS WARDEN & PORTAL -->
         <div class="premium-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
             <h3 class="text-xs font-black text-amber-400 uppercase tracking-widest">Panel Kawalan & Portal</h3>
@@ -362,7 +358,6 @@
             </button>
           </div>
 
-          <!-- MENU PAUTAN SISTEM & PORTAL -->
           <div class="space-y-2 pt-0.5">
             <a
               href="https://script.google.com/macros/s/AKfycbz3NBV9G9BTnxEVze6I3mymaXIbWLxn14nNhllenXPcSzyKepOS2WT_ENAgbr_yfQRH/exec"
@@ -403,7 +398,6 @@
           </div>
         </div>
 
-        <!-- RINGKASAN MENGIKUT TINGKATAN -->
         <div class="premium-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl space-y-3">
           <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
             <h3 class="text-xs font-black text-slate-200 uppercase tracking-wider">Ringkasan Tingkatan</h3>
@@ -426,7 +420,6 @@
           </div>
         </div>
 
-        <!-- DIREKTORI ASPURA & ASPURI -->
         <div class="grid grid-cols-2 gap-3">
           <button onclick="bukaModalAsrama('LELAKI')" class="premium-card p-3.5 rounded-2xl border border-blue-500/25 hover:border-blue-400/60 text-left transition-all cursor-pointer group">
             <div class="flex items-center justify-between mb-1.5">
@@ -446,23 +439,21 @@
             <p id="info-jumlah-aspuri" class="text-[11px] text-slate-400 mt-0.5">Lihat senarai</p>
           </button>
         </div>
-
       </aside>
     </main>
 
-    <!-- FOOTER DESKTOP -->
     <footer class="hidden lg:flex pt-4 border-t border-slate-800/80 items-center justify-between text-xs text-slate-400">
       <p class="font-semibold text-slate-300">"Imbas Sekarang, Kehadiran Direkod!" • Asrama Harmoni, Pelajar Berdisiplin</p>
       <p>📍 UNIT PENGURUSAN ASRAMA SMKA TOK BACHOK</p>
     </footer>
   </div>
 
-  <!-- BAR NAVIGASI BAWAH KHAS UNTUK TELEFON PINTAR (THUMB-FRIENDLY) -->
+  <!-- BAR NAVIGASI BAWAH -->
   <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 px-2 pt-2 safe-bottom">
     <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
-      <button onclick="aktifkanKameraTerus()" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-amber-400 hover:bg-slate-900 cursor-pointer">
+      <button onclick="tatalKeSeksyen('seksyen-imbasan')" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-amber-400 hover:bg-slate-900 cursor-pointer">
         <span class="text-base">📷</span>
-        <span class="text-[10px] font-bold mt-0.5">Kamera</span>
+        <span class="text-[10px] font-bold mt-0.5">Imbas</span>
       </button>
       <button onclick="bukaModalLaporanRasmi()" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-300 hover:bg-slate-900 cursor-pointer">
         <span class="text-base">📊</span>
@@ -479,7 +470,7 @@
     </div>
   </nav>
 
-  <!-- MODAL MENU PORTAL (TELEFON PINTAR) -->
+  <!-- MODAL MENU PORTAL -->
   <div id="modal-portal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
     <div class="premium-card-gold p-5 sm:p-7 rounded-t-3xl sm:rounded-3xl max-w-md w-full relative space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -489,30 +480,15 @@
         <button onclick="tutupModalPortal()" class="w-9 h-9 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold flex items-center justify-center cursor-pointer">✕</button>
       </div>
       <div class="space-y-2.5 text-xs">
-        <a
-          href="https://script.google.com/macros/s/AKfycbz3NBV9G9BTnxEVze6I3mymaXIbWLxn14nNhllenXPcSzyKepOS2WT_ENAgbr_yfQRH/exec"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="min-h-[48px] w-full px-4 py-3 rounded-2xl bg-blue-500/15 hover:bg-blue-500/25 text-blue-200 border border-blue-500/35 font-bold flex items-center justify-between"
-        >
+        <a href="https://script.google.com/macros/s/AKfycbz3NBV9G9BTnxEVze6I3mymaXIbWLxn14nNhllenXPcSzyKepOS2WT_ENAgbr_yfQRH/exec" target="_blank" rel="noopener noreferrer" class="min-h-[48px] w-full px-4 py-3 rounded-2xl bg-blue-500/15 hover:bg-blue-500/25 text-blue-200 border border-blue-500/35 font-bold flex items-center justify-between">
           <span class="flex items-center gap-2.5"><span>📋</span><span>Sistem E-Pemantauan Harian</span></span>
           <span class="font-black text-blue-300">Buka ↗</span>
         </a>
-        <a
-          href="https://script.google.com/macros/s/AKfycbxFstsHqbNE6SxAh-jOOe_EnL8iOZ_s2E7Q54Y61qniUG9-19bJ69I6ni4JQV_AjGSaPg/exec"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="min-h-[48px] w-full px-4 py-3 rounded-2xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border border-amber-500/35 font-bold flex items-center justify-between"
-        >
+        <a href="https://script.google.com/macros/s/AKfycbxFstsHqbNE6SxAh-jOOe_EnL8iOZ_s2E7Q54Y61qniUG9-19bJ69I6ni4JQV_AjGSaPg/exec" target="_blank" rel="noopener noreferrer" class="min-h-[48px] w-full px-4 py-3 rounded-2xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border border-amber-500/35 font-bold flex items-center justify-between">
           <span class="flex items-center gap-2.5"><span>🛡️</span><span>Portal Warden Asrama</span></span>
           <span class="font-black text-amber-300">Buka ↗</span>
         </a>
-        <a
-          href="https://script.google.com/macros/s/AKfycbw6Q6OZUy2MZPNVI9SsLFzqn9-K6qgmrqm0mQb_2Ng6TGA4NIjGbaXYX07Do3Q5ND-a7Q/exec"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="min-h-[48px] w-full px-4 py-3 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 border border-emerald-500/35 font-bold flex items-center justify-between"
-        >
+        <a href="https://script.google.com/macros/s/AKfycbw6Q6OZUy2MZPNVI9SsLFzqn9-K6qgmrqm0mQb_2Ng6TGA4NIjGbaXYX07Do3Q5ND-a7Q/exec" target="_blank" rel="noopener noreferrer" class="min-h-[48px] w-full px-4 py-3 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 border border-emerald-500/35 font-bold flex items-center justify-between">
           <span class="flex items-center gap-2.5"><span>👨‍👩‍👧</span><span>Portal Ibubapa Pelajar</span></span>
           <span class="font-black text-emerald-300">Buka ↗</span>
         </a>
@@ -623,7 +599,7 @@
     </div>
   </div>
 
-  <!-- MODAL LAPORAN INDIVIDU / PROFIL -->
+  <!-- MODAL LAPORAN INDIVIDU -->
   <div id="modal-laporan-individu" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
     <div class="premium-card-gold p-4 sm:p-7 rounded-t-3xl sm:rounded-3xl max-w-2xl w-full relative max-h-[90vh] flex flex-col space-y-3.5">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -667,7 +643,6 @@
     let chartTrendInstance = null;
     let gunaKameraBelakang = true;
 
-    // Sokongan Alat Scan Fizikal (USB / Bluetooth Scanner)
     let modScannerAlatAktif = true;
     let bufferAlatScan = "";
     let masaKeyTerakhir = 0;
@@ -679,11 +654,6 @@
     function tatalKeSeksyen(id) {
       const el = document.getElementById(id);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    function aktifkanKameraTerus() {
-      tatalKeSeksyen('seksyen-imbasan');
-      pilihKaedahImbas('KAMERA');
     }
 
     function bukaModalPortal() {
@@ -713,9 +683,7 @@
         }
       });
 
-      if (mod === 'KAMERA') {
-        mulakanKamera();
-      } else {
+      if (mod !== 'KAMERA') {
         tutupKamera();
         if (mod === 'ALAT') {
           setTimeout(() => fokusAlatScan(), 120);
@@ -934,38 +902,28 @@
     }
 
     async function mulakanKamera() {
-      if (kameraSedangAktif && html5QrCode) {
-        return;
-      }
-      if (html5QrCode) {
-        await tutupKamera();
-      }
-      mulakanKameraBaru();
-    }
-
-    function mulakanKameraBaru() {
-      if (!document.getElementById("reader")) return;
+      if (kameraSedangAktif || html5QrCode) return;
       html5QrCode = new Html5Qrcode("reader");
-      const tetapanKamera = gunaKameraBelakang ? { facingMode: "environment" } : { facingMode: "user" };
-
-      html5QrCode.start(
-        tetapanKamera,
-        { fps: 15, qrbox: { width: 210, height: 210 } },
-        (decodedText) => { hantarDataScan(decodedText); },
-        () => {}
-      ).then(() => {
+      const kekangan = gunaKameraBelakang ? { facingMode: "environment" } : { facingMode: "user" };
+      try {
+        await html5QrCode.start(
+          kekangan,
+          { fps: 15, qrbox: { width: 200, height: 200 } },
+          (decodedText) => { hantarDataScan(decodedText); },
+          () => {}
+        );
         kameraSedangAktif = true;
-      }).catch(() => {
+      } catch (err) {
         kameraSedangAktif = false;
-        paparNotifikasi("Kamera tidak dapat dibuka. Sila benarkan akses kamera pada pelayar.", "GAGAL");
-      });
+        html5QrCode = null;
+        paparNotifikasi("Kamera tidak dapat dibuka: " + err, "GAGAL");
+      }
     }
 
     async function tukarKamera() {
       gunaKameraBelakang = !gunaKameraBelakang;
-      paparNotifikasi(gunaKameraBelakang ? "📷 Mod: Kamera Belakang" : "🤳 Mod: Kamera Depan", "AMARAN");
       await tutupKamera();
-      mulakanKameraBaru();
+      await mulakanKamera();
     }
 
     async function tutupKamera() {
@@ -1343,8 +1301,6 @@
       }, 1000);
 
       muatNaikStatistik();
-      // Kamera diutamakan dan cuba dibuka automatik apabila halaman dimuatkan
-      setTimeout(() => mulakanKamera(), 350);
     };
   </script>
 </body>
